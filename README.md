@@ -29,7 +29,8 @@ not a client-side alert that can be bypassed.
 - Local development/testing on `127.0.0.1`, `localhost` or `::1` needs no login.
 - Production/staging, a non-loopback `HOST`, or a non-local `PUBLIC_ORIGIN`
   requires `POC_AUTH_USER` and `POC_AUTH_PASSWORD`. The password must have at
-  least 12 characters; use a password manager to generate a longer random one.
+  least 7 characters after trimming for this POC. Use a longer, unique password
+  for publicly reachable deployments.
 - Missing/invalid credentials stop the server **before it listens**. There is
   no default shared password and no request-header-based authentication bypass.
 - HTML, assets, hotel APIs, Mapbox configuration and Q&A are protected. Only

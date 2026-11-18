@@ -39,14 +39,23 @@ test('required credentials are validated and Unicode Basic credentials remain us
 
 test('startup diagnostics identify invalid credential variables without exposing values', () => {
   const username = 'sample:user';
-  const password = 'short-test';
+  const password = 'short!';
   assert.throws(() => createAccessControl({ environment: 'production', username, password }), error => {
     assert.equal(error.code, 'POC_AUTH_CONFIG');
     assert.match(error.message, /POC_AUTH_USER must/);
     assert.match(error.message, /POC_AUTH_PASSWORD must/);
-    assert.doesNotMatch(error.message, /sample:user|short-test/);
+    assert.doesNotMatch(error.message, /sample:user|short!/);
     return true;
   });
+});
+
+test('hosted POC login accepts a seven-character password but rejects six after trimming', () => {
+  const options = { environment: 'production', username: 'viewer' };
+  assert.throws(() => createAccessControl({ ...options, password: ' test12 ' }), { code: 'POC_AUTH_CONFIG' });
+
+  const access = createAccessControl({ ...options, password: 'test123' });
+  assert.equal(access.required, true);
+  assert.equal(access.authorize(`Basic ${Buffer.from('viewer:test123').toString('base64')}`), true);
 });
 
 test('public origin validation rejects credentials, paths and unsupported schemes', () => {

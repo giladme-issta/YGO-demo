@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import { AppError } from './errors.mjs';
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '::1', '[::1]']);
+const MIN_POC_PASSWORD_LENGTH = 7;
 const digest = value => createHash('sha256').update(value).digest();
 
 export function createAccessControl({
@@ -40,9 +41,9 @@ export function createAccessControl({
   }
   if (password === '') {
     problems.push('POC_AUTH_PASSWORD is missing or empty');
-  } else if (typeof password !== 'string' || password.trim().length < 12 ||
+  } else if (typeof password !== 'string' || password.trim().length < MIN_POC_PASSWORD_LENGTH ||
       password.length > 1024 || /[\u0000-\u001f\u007f]/.test(password)) {
-    problems.push('POC_AUTH_PASSWORD must have at least 12 characters after trimming, at most 1024 total, and no control characters');
+    problems.push(`POC_AUTH_PASSWORD must have at least ${MIN_POC_PASSWORD_LENGTH} characters after trimming, at most 1024 total, and no control characters`);
   }
   if (problems.length) {
     throw new AppError(500, 'POC_AUTH_CONFIG', `${problems.join('; ')}.`);
