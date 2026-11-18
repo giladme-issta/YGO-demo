@@ -37,6 +37,18 @@ test('required credentials are validated and Unicode Basic credentials remain us
   assert.equal(access.authorize('Basic invalid'), false);
 });
 
+test('startup diagnostics identify invalid credential variables without exposing values', () => {
+  const username = 'sample:user';
+  const password = 'short-test';
+  assert.throws(() => createAccessControl({ environment: 'production', username, password }), error => {
+    assert.equal(error.code, 'POC_AUTH_CONFIG');
+    assert.match(error.message, /POC_AUTH_USER must/);
+    assert.match(error.message, /POC_AUTH_PASSWORD must/);
+    assert.doesNotMatch(error.message, /sample:user|short-test/);
+    return true;
+  });
+});
+
 test('public origin validation rejects credentials, paths and unsupported schemes', () => {
   for (const publicOrigin of ['invalid', 'file:///tmp/poc', 'https://user:password@example.test',
     'https://example.test/path', 'https://example.test/?query=1', 'https://example.test/#hash']) {
@@ -54,5 +66,7 @@ test('the production entrypoint exits before listening when access credentials a
   });
   assert.equal(result.status, 1, result.stderr);
   assert.match(result.stderr, /POC_AUTH_CONFIG/);
+  assert.match(result.stderr, /POC_AUTH_USER is missing or empty/);
+  assert.match(result.stderr, /POC_AUTH_PASSWORD is missing or empty/);
   assert.doesNotMatch(result.stdout, /YGO hotel POC:/);
 });

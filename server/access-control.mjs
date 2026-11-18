@@ -31,11 +31,21 @@ export function createAccessControl({
     !LOOPBACK_HOSTS.has(host) || Boolean(origin && !LOOPBACK_HOSTS.has(new URL(origin).hostname));
   if (!required) return { required, origin, authorize: () => true };
 
-  if (typeof username !== 'string' || !username.trim() || username.length > 128 ||
-      /[:\u0000-\u001f\u007f]/.test(username) || typeof password !== 'string' ||
-      password.trim().length < 12 || password.length > 1024 || /[\u0000-\u001f\u007f]/.test(password)) {
-    throw new AppError(500, 'POC_AUTH_CONFIG',
-      'Non-local access requires POC_AUTH_USER (no colon) and POC_AUTH_PASSWORD (at least 12 characters).');
+  const problems = [];
+  if (username === '') {
+    problems.push('POC_AUTH_USER is missing or empty');
+  } else if (typeof username !== 'string' || !username.trim() || username.length > 128 ||
+      /[:\u0000-\u001f\u007f]/.test(username)) {
+    problems.push('POC_AUTH_USER must be a non-blank username of at most 128 characters with no colon or control characters');
+  }
+  if (password === '') {
+    problems.push('POC_AUTH_PASSWORD is missing or empty');
+  } else if (typeof password !== 'string' || password.trim().length < 12 ||
+      password.length > 1024 || /[\u0000-\u001f\u007f]/.test(password)) {
+    problems.push('POC_AUTH_PASSWORD must have at least 12 characters after trimming, at most 1024 total, and no control characters');
+  }
+  if (problems.length) {
+    throw new AppError(500, 'POC_AUTH_CONFIG', `${problems.join('; ')}.`);
   }
   const expected = digest(Buffer.from(`${username}:${password}`, 'utf8'));
   return {

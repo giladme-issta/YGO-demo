@@ -120,6 +120,10 @@ key, or `YGO_DATA_MODE=sample` to try only hotel `4458386` without one.
 After redeploying, check that `/api/health` returns `{"status":"ok"}` without
 login, that `/` and `/hotel-page/hotel-app.css` require login, and that
 `/?hotel=4458386` loads after login.
+If Vercel returns `FUNCTION_INVOCATION_FAILED`, check the deployment's
+**Runtime Logs**. A `[startup] POC_AUTH_CONFIG` line identifies which viewer
+credential is missing, empty, or invalid without showing its value. Update
+that variable for **Production**, keep it secret, and redeploy.
 
 ## Refresh YGO content
 
