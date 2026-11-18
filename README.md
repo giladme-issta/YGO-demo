@@ -104,6 +104,23 @@ without inbound traffic and have ephemeral storage. For a predictable scheduled
 demo, use a paid instance or open the link ahead of time. This setup has been
 documented but no cloud resources have been created or deployed.
 
+### Vercel alternative
+
+Import the repository with its root as the **Root Directory**, and select
+**Node.js 24.x**. The checked-in `vercel.json` builds `server/main.mjs` directly.
+It bundles the frontend into the Node function instead of publishing `public/`
+as a static site, so the existing Basic Auth gate covers both assets and APIs.
+
+Use the same viewer and YGO environment variables as above. Set
+`NODE_ENV=production` and set `PUBLIC_ORIGIN` to the exact HTTPS origin you will
+share (this is required for Q&A origin checks on Vercel). Leave `HOST`, `PORT`,
+`NODE_VERSION`, and `YGO_TRANSPORT` unset. Use `YGO_DATA_MODE=live` with a YGO API
+key, or `YGO_DATA_MODE=sample` to try only hotel `4458386` without one.
+
+After redeploying, check that `/api/health` returns `{"status":"ok"}` without
+login, that `/` and `/hotel-page/hotel-app.css` require login, and that
+`/?hotel=4458386` loads after login.
+
 ## Refresh YGO content
 
 Configure credentials in the server process environment. Do not commit them,
