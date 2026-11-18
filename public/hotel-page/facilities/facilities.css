@@ -1,0 +1,365 @@
+/* facilities — "מתקנים פופולריים": a one-row carousel of facility categories in the
+   shared info-section layout (title right · divider · carousel left), plus the
+   category detail popup (#fac-modal). Same carousel mechanics as
+   hotel-suggestions (native RTL scroll + paging arrows on desktop, swipe on mobile).
+   Accessible by default: AA colours, real buttons, dialog semantics + focus
+   management, visible keyboard focus, no hover-only info. */
+
+.facilities { width: 100%; background: var(--white); }
+
+.facilities__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--info-gap);
+  padding-block: 28px;
+}
+.facilities__title {
+  flex: 0 0 var(--info-aside);
+  margin: 0;
+  text-align: right;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+  color: var(--text);
+}
+.facilities__divider { flex: 0 0 1px; align-self: stretch; background: var(--hairline); }
+.facilities__content { flex: 1 1 auto; min-width: 0; }
+
+/* ---------------- carousel ---------------- */
+.facilities__carousel { position: relative; }
+.facilities__viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.facilities__viewport::-webkit-scrollbar { display: none; }
+.facilities__track {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 6px 2px 8px;                   /* room for the card shadow */
+  list-style: none;
+}
+.facilities__slide {
+  display: flex;                          /* equal-height cards */
+  flex: 0 0 calc((100% - 2 * 16px) / 3);  /* desktop: 3 per page */
+  scroll-snap-align: start;
+}
+
+/* arrows (desktop/tablet) — same assets as hotel-suggestions, centred on the photo */
+.facilities__arrow {
+  position: absolute;
+  top: 92px;                              /* JS re-centres on the photo */
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 53px;
+  height: 58px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.facilities__arrow img { width: 100%; height: 100%; display: block; pointer-events: none; }
+.facilities__arrow:hover { opacity: .85; }
+.facilities__arrow:disabled { opacity: 0; pointer-events: none; }
+.facilities__arrow--prev { right: -18px; }   /* RTL: back = right */
+.facilities__arrow--next { left: -18px; }    /* RTL: forward = left */
+.facilities__arrow:focus-visible { outline: 2px solid var(--link); outline-offset: -4px; border-radius: 14px; }
+
+/* ---------------- card ---------------- */
+.fac-card {
+  position: relative;                     /* anchors the stretched "הצג הכל" hit-area */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 4px 4px 0;
+  background: var(--white);
+  border: 1px solid #dce0ef;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(20, 25, 47, 0.09);
+  text-align: right;
+  transition: box-shadow .2s ease;
+}
+.fac-card:hover { box-shadow: 0 8px 22px rgba(20, 25, 47, 0.14); }
+
+.fac-card__media { flex: none; height: 168px; border-radius: 10px; overflow: hidden; background: #eef2f5; }
+.fac-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease; }
+.fac-card:hover .fac-card__img { transform: scale(1.045); }
+
+.fac-card__body { flex: 1 1 auto; display: flex; flex-direction: column; padding: 14px 12px 16px; }
+.fac-card__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+  color: var(--text);
+}
+.fac-card__ic,
+.fac-modal__ic {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--badge-soft);
+  color: var(--color);
+}
+.fac-card__ic svg, .fac-modal__ic svg { width: 20px; height: 20px; }
+
+.fac-card__pts { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fac-card__pt { display: flex; align-items: center; gap: 8px; font-size: 14.5px; line-height: 1.35; color: var(--text); }
+.fac-card__check { flex: none; width: 16px; height: 16px; color: var(--color); }
+.fac-card__pt-txt { flex: 1 1 auto; min-width: 0; }
+
+/* free / paid badges — both AA on their own tint (≈5.4:1 / ≈5.2:1) */
+.fac-badge {
+  flex: none;
+  display: inline-block;
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.fac-badge--free { background: var(--badge-soft); color: #076e2e; }
+.fac-badge--paid { background: #fbeedd; color: #8a5a00; }
+
+.fac-card__more {
+  margin-top: auto;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 15px;
+  font-weight: var(--fw-medium);
+  color: var(--link);
+  cursor: pointer;
+  text-underline-offset: 3px;
+}
+.fac-card__more svg { width: 14px; height: 14px; flex: none; }
+/* the whole card is the hit-area of its single button (one tab stop per card) */
+.fac-card__more::after { content: ""; position: absolute; inset: 0; border-radius: 12px; }
+.fac-card:hover .fac-card__more { text-decoration: underline; }
+.fac-card__more:focus-visible { outline: none; text-decoration: underline; }
+.fac-card__more:focus-visible::after { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---------------- detail popup ---------------- */
+.fac-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;                          /* sits before the lightbox in the DOM → lightbox stacks on top */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.fac-modal[hidden] { display: none; }
+.fac-modal__backdrop { position: absolute; inset: 0; border: 0; padding: 0; background: rgba(0, 0, 0, 0.5); cursor: pointer; }
+.fac-modal__dialog {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 800px;
+  max-width: 100%;
+  max-height: min(88vh, 860px);
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  text-align: right;
+}
+.fac-modal__dialog:focus { outline: none; }
+
+.fac-modal__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--hairline);
+}
+.fac-modal__ic { width: 42px; height: 42px; border-radius: 12px; }
+.fac-modal__ic svg { width: 22px; height: 22px; }
+.fac-modal__head-txt { flex: 1 1 auto; min-width: 0; }
+.fac-modal__title { margin: 0; font-size: 20px; font-weight: var(--fw-bold); line-height: 1.25; color: var(--text); }
+.fac-modal__sub { margin: 2px 0 0; font-size: 13.5px; color: var(--icon); }
+.fac-modal__close {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.fac-modal__close:hover { background: #f2f5f7; }
+.fac-modal__close svg { width: 20px; height: 20px; }
+.fac-modal__close:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+.fac-modal__body { flex: 1 1 auto; overflow-y: auto; padding: 20px; overscroll-behavior: contain; }
+.fac-modal__intro { margin: 0 0 16px; font-size: 15px; line-height: 1.65; color: var(--light-text); }
+
+/* photo mosaic: big photo on the right + smaller ones; each opens the lightbox */
+.fac-photos { display: grid; gap: 8px; height: 250px; margin-bottom: 20px; }
+.fac-photos:empty { display: none; }
+.fac-photos--n1 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fac-photos--n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fac-photos--n3 { grid-template-columns: 2fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.fac-photos--n3 .fac-photo:first-child { grid-row: 1 / 3; }
+.fac-photos--n4,
+.fac-photos--n5 { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.fac-photos--n4 .fac-photo:first-child,
+.fac-photos--n5 .fac-photo:first-child { grid-row: 1 / 3; }
+.fac-photos--n4 .fac-photo:nth-child(4) { grid-column: 2 / 4; }
+.fac-photos--n5 .fac-photo:nth-child(n + 6) { display: none; }   /* the rest live in the lightbox (+N) */
+
+.fac-photo {
+  position: relative;
+  display: block;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #eef2f5;
+  cursor: zoom-in;
+}
+.fac-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
+.fac-photo:hover img { transform: scale(1.04); }
+.fac-photo:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.fac-photo__more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.58);       /* white text ≥ 5:1 even over a white photo */
+  color: var(--white);
+  font-size: 20px;
+  font-weight: var(--fw-bold);
+  direction: ltr;                         /* "+2", not "2+" in the RTL page */
+}
+
+/* facilities list: short items in two columns, detailed ones full width */
+.fac-modal__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.fac-item { padding: 13px 15px; border-radius: 12px; background: #f6f8f9; }
+.fac-item--wide { grid-column: 1 / -1; }
+.fac-item__head { display: flex; align-items: center; gap: 8px; }
+.fac-item__check { flex: none; width: 17px; height: 17px; color: var(--color); }
+.fac-item__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  font-size: 15px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.35;
+  color: var(--text);
+}
+.fac-item__val {
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--white);
+  border: 1px solid #dce0ef;
+  font-size: 13px;
+  font-weight: var(--fw-bold);
+  line-height: 1.6;
+  color: var(--text);
+}
+.fac-item__desc { margin: 7px 25px 0 0; font-size: 14px; line-height: 1.6; color: var(--light-text); }
+.fac-item__meta { margin: 8px 25px 0 0; padding-top: 8px; border-top: 1px dashed #d5dbe0; font-size: 14px; font-weight: var(--fw-medium); line-height: 1.5; color: var(--text); }
+.fac-item__subs { list-style: none; margin: 8px 25px 0 0; padding: 0; }
+.fac-item__sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px dashed #d5dbe0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.fac-modal__note { margin: 18px 0 0; font-size: 12.5px; color: var(--icon); }
+
+/* ---------------- tablet: 2 cards per page ---------------- */
+@media (max-width: 1100px) {
+  .facilities__slide { flex-basis: calc((100% - 16px) / 2); }
+}
+
+/* ---------------- mobile ---------------- */
+@media (max-width: 768px) {
+  .facilities { order: 6; min-width: 0; }
+  .facilities__inner {
+    flex-direction: column;
+    align-items: stretch;                 /* reset flex-start: in a column it sizes children to content (page overflow) */
+    gap: 14px;
+    padding-block: 20px;
+  }
+  .facilities__divider { display: none; }
+  .facilities__title { flex: none; width: 100%; font-size: 18px; font-weight: var(--fw-semibold); }
+
+  /* full-bleed swipe row: cards reach the screen edge (no premature cut), the first
+     card lines up with the page content on the right */
+  .facilities__carousel { margin-inline: calc(-1 * var(--page-pad)); }
+  .facilities__viewport { scroll-snap-type: x mandatory; scroll-padding-inline: var(--page-pad); }
+  .facilities__track { width: max-content; gap: 12px; padding-inline: var(--page-pad); }   /* max-content keeps the END gutter scrollable */
+  .facilities__slide { flex: 0 0 min(272px, 76vw); }
+  .facilities__arrow { display: none; }
+  .fac-card__media { height: 150px; }
+
+  /* popup → bottom sheet; photos → one swipe row with every photo */
+  .fac-modal { padding: 0; align-items: flex-end; }
+  .fac-modal__dialog { width: 100%; max-height: 92vh; border-radius: 18px 18px 0 0; }
+  .fac-modal__head { padding: 14px 16px; }
+  .fac-modal__title { font-size: 18px; }
+  .fac-modal__body { padding: 16px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .fac-photos,
+  .fac-photos[class*="--n"] {
+    display: flex;
+    height: auto;
+    gap: 8px;
+    margin: 0 -16px 18px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 16px;
+    scrollbar-width: none;
+  }
+  .fac-photos::-webkit-scrollbar { display: none; }
+  .fac-photos .fac-photo,
+  .fac-photos--n5 .fac-photo:nth-child(n + 6) { display: block; flex: 0 0 62%; aspect-ratio: 4 / 3; scroll-snap-align: start; }
+  .fac-photos--n1 .fac-photo { flex-basis: 100%; }
+  .fac-photo__more { display: none; }
+  .fac-modal__list { grid-template-columns: 1fr; gap: 8px; }
+}

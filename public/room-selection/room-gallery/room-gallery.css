@@ -1,0 +1,146 @@
+/* room-gallery — the mini photo viewer inside a room card: a front image that
+   cross-dissolves to an under image on paging (no white flash), with back/next
+   arrows and a photo counter. Clicking anywhere opens the shared lightbox. */
+.room-gallery {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-img);
+  overflow: hidden;
+  cursor: pointer; /* click anywhere on the photo opens the gallery */
+}
+/* Front image — dissolves out on paging to reveal the incoming one below. */
+.room-gallery__img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 207px;
+  object-fit: cover;
+  transition: opacity 0.3s ease, transform 0.55s ease;
+}
+.room-gallery__img.is-fading {
+  opacity: 0;
+}
+/* gentle zoom-in on hover (like the top hotel gallery); front + under photos scale
+   together. The paging fade uses opacity, so it never conflicts. */
+.room-gallery:hover .room-gallery__img,
+.room-gallery:hover .room-gallery__under { transform: scale(1.045); }
+/* Under image — holds the incoming photo so no white flashes during the swap. */
+.room-gallery__under {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.55s ease;
+}
+.room-gallery__controls {
+  position: absolute;
+  z-index: 2;
+  inset: auto 8px 8px 8px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+}
+.room-gallery__arrows {
+  display: flex;
+  gap: 6px;
+}
+.room-gallery__counter {
+  display: flex;
+  align-items: center;
+  direction: ltr;
+  gap: 6px;
+  height: 40.78px;
+  padding: 2px 9px;
+  border: 0;
+  border-radius: 5.96px;
+  background: rgba(0, 0, 0, 0.48);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font);
+  font-weight: var(--fw-medium);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.room-gallery__counter:hover {
+  background: #218741;
+  color: var(--white);
+}
+.room-gallery__counter img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+}
+
+.gallery-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32.78px;
+  height: 40.78px;
+  padding: 0;
+  border: 0;
+  border-radius: 5.96px;
+  background: rgba(0, 0, 0, 0.48);
+  cursor: pointer;
+  transition: background-color 0.15s;
+  transform: scaleX(-1);
+}
+.gallery-arrow:hover {
+  background: #218741;
+}
+.gallery-arrow img {
+  width: 13px;
+  height: 13px;
+  object-fit: contain;
+}
+.gallery-arrow--next {
+  transform: none;
+}
+
+/* ---------- Medium tiers: shorter photo ---------- */
+@media (min-width: 1001px) and (max-width: 1339px) {
+  .room-gallery__img { height: 192px; }
+}
+@media (min-width: 1001px) and (max-width: 1259px) {
+  .room-gallery__img { height: 175px; }
+}
+
+/* ---------- Mobile (max 1000px): small photo pinned top-left of the card ---------- */
+@media (max-width: 1000px) {
+  .room-gallery {
+    position: absolute;
+    top: 16px;
+    inset-inline-start: 16px;
+    width: 100px;
+    height: 123px;
+    margin: 0;
+    border-radius: 8px;
+  }
+  .room-gallery__img {
+    height: 100%;
+  }
+  .room-gallery__controls {
+    position: static;
+  }
+  .room-gallery__arrows {
+    display: none;
+  }
+  .room-gallery__counter {
+    position: absolute;
+    top: auto;
+    bottom: 6px;
+    right: 6px;
+    height: 28px;
+    gap: 5px;
+    padding: 0 8px;
+    font-size: 14px;
+    border-radius: 6px;
+  }
+  .room-gallery__counter img {
+    width: 16px;
+    height: 16px;
+  }
+}

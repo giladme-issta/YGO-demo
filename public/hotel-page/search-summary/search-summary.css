@@ -1,0 +1,246 @@
+/* search-summary — scoped to .search-summary only. */
+
+.search-summary {
+  width: 100%;
+  background: var(--white);
+}
+
+.search-summary__inner {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-block: 16px;
+}
+
+/* full-width hairline the pill sits on top of */
+.search-summary__inner::before {
+  content: "";
+  position: absolute;
+  left: var(--page-pad);
+  right: var(--page-pad);
+  top: 50%;
+  height: 1px;
+  background: var(--hairline);
+}
+
+.search-summary__pill {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 5px 10px;
+  background: var(--white);
+  border: 1px solid var(--color-2);
+  border-radius: 10px;
+}
+
+/* editable cells (dates · passengers · search) fill with a soft green on hover */
+.search-summary__field,
+.search-summary__submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color .15s ease;
+}
+.search-summary__field:hover,
+.search-summary__submit:hover {
+  background: #DDF1E3;
+}
+
+.search-summary__icon  { width: 22px; height: 22px; flex: none; }
+.search-summary__caret { width: 10px; height: 6px; flex: none; opacity: .85; }
+.search-summary__text  { line-height: 1.2; }
+
+/* ---- location: opens the destination dropdown; name clips with "…" on the LEFT ---- */
+.search-summary__loc { position: relative; display: inline-flex; }
+.search-summary__location { max-width: 400px; }   /* rest inherited from __field */
+.search-summary__location .search-summary__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;               /* clip + "…" on the LEFT, even for the English name */
+  line-height: 1.2;
+}
+
+.search-summary__submit {
+  font-weight: var(--fw-bold);
+  color: var(--color);
+}
+
+/* after picking a new destination the CTA becomes a filled green "search" button
+   (accessible: #098137 bg + white text ≈ 5:1) */
+.search-summary__submit--search {
+  background: var(--color);
+  color: var(--white);
+  padding: 8px 22px;
+  border-radius: 8px;
+}
+.search-summary__submit--search:hover { background: var(--green-hover); }
+
+.search-summary__sep {
+  flex: none;
+  width: 1px;
+  height: 19px;
+  background: var(--hairline);
+}
+
+/* mobile compact summary — hidden on desktop */
+.search-summary__compact { display: none; }
+
+/* ---- mobile: compact pill (no hotel name) overlapping the gallery bottom ---- */
+@media (max-width: 768px) {
+  /* straddles the header (white) and the gallery (image): top half on white,
+     bottom half over the photo — achieved with a -20px bottom margin (half the
+     40px pill) so the gallery slides up under the pill's lower half. */
+  .search-summary { order: 1; background: transparent; position: relative; z-index: 3; padding-top: 10px; }
+  .search-summary__inner { padding-block: 0; margin: 0; }
+  .search-summary__inner::before { display: none; }
+  .search-summary__pill { display: none; }
+
+  /* grid = 3 content cells + 2 hairline dividers, no gaps, so each cell's
+     content sits centred between its dividers (edit centred between the last
+     divider and the left edge) */
+  .search-summary__compact {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: auto 1px 1fr 1px auto;   /* edit = content width (narrow); dates & passengers share the rest */
+    align-items: stretch;
+    width: 100%;
+    height: 40px;
+    padding: 0;
+    background: var(--white);
+    border: 1px solid var(--color-2);
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    font-size: 13px;
+    line-height: 1.15;
+    color: var(--text);
+  }
+  /* dates: two check-in / check-out blocks (date over day) with a dash between */
+  .search-summary__cdates {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding-inline: 14px 12px;
+  }
+  .search-summary__cdate {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;          /* text aligned to the right (RTL start) */
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  .search-summary__cw { color: var(--muted); font-size: 11.5px; }
+  .search-summary__cdash { color: var(--icon); align-self: center; }
+  /* passengers: two stacked lines, right-aligned, group centred in its cell */
+  .search-summary__cpax {
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  .search-summary__csep {
+    width: 1px;
+    align-self: stretch;
+    margin-block: 8px;
+    background: var(--hairline);
+  }
+  /* edit — narrow content-width cell, equal breathing room each side */
+  .search-summary__cedit {
+    align-self: center;
+    padding-inline: 16px;
+    color: var(--color);
+    font-weight: var(--fw-bold);
+    font-size: 13px;
+  }
+}
+
+/* ---- tablet: enough room → show each group on ONE line ---- */
+@media (min-width: 560px) and (max-width: 768px) {
+  .search-summary__cdate { flex-direction: row; align-items: baseline; gap: 5px; }
+  .search-summary__cpax  { flex-direction: row; align-items: baseline; gap: 5px; }
+  .search-summary__cpax span:first-child::after { content: ","; }
+}
+
+/* ============ destination dropdown (opens from the hotel-name cell) ============
+   "You're at THIS hotel (selected); or pick another destination to search other
+   hotels." Changing dates/guests refreshes this hotel — changing the destination
+   here starts a new search. */
+.ss-dd {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 40;
+  width: 344px;
+  max-width: 92vw;
+  padding: 12px;
+  background: var(--white);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  box-shadow: 0 16px 44px rgba(20, 25, 47, 0.17);
+  text-align: right;
+}
+
+.ss-dd__current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #e7f3ea;            /* soft green = your current selection */
+}
+.ss-dd__check { flex: none; color: var(--color); font-weight: var(--fw-bold); }
+.ss-dd__cur-name {
+  flex: 1 1 auto; min-width: 0;
+  font-size: 14px; font-weight: var(--fw-medium); color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl;
+}
+.ss-dd__here {
+  flex: none; font-size: 11.5px; color: var(--color);
+  background: var(--white); border-radius: 999px; padding: 2px 9px;
+}
+
+.ss-dd__divider { height: 1px; background: var(--hairline); margin: 10px 0; }
+.ss-dd__title  { margin: 0 2px 8px; font-size: 14px; font-weight: var(--fw-medium); color: var(--text); }
+
+.ss-dd__search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline); border-radius: 10px;
+}
+.ss-dd__search:focus-within { border-color: var(--color-2); }
+.ss-dd__search-icon { width: 18px; height: 18px; flex: none; opacity: .8; }
+.ss-dd__input {
+  flex: 1 1 auto; min-width: 0; border: 0; background: none;
+  font: inherit; font-size: 15px; color: var(--text);
+}
+.ss-dd__input:focus { outline: none; }
+.ss-dd__input::placeholder { color: var(--muted); }
+
+/* one plain list — the last destination (אמסטרדם) leads, no headings / frame / icon;
+   ~7.5 rows visible so the half-cut row hints that it scrolls */
+.ss-dd__list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 270px; overflow-y: auto; }
+
+.ss-dd__dest {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 9px 10px; border: 0; border-radius: 9px; background: none;
+  font: inherit; font-size: 15px; color: var(--text); text-align: right;
+  cursor: pointer; transition: background-color .12s ease;
+}
+.ss-dd__dest:hover { background: #ddf1e3; }
+.ss-dd__dest:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }

@@ -1,0 +1,261 @@
+/* tax-details — the tax breakdown opened from a tariff's "לפירוט מחיר ומיסים".
+   Desktop: a small tooltip anchored under the link. Mobile: a bottom drawer
+   with a close X on the right. Two variants:
+     • prices — taxes included in the price vs. taxes paid at the hotel desk
+     • terms  — a short note + a link that opens the terms popup (tax-terms)   */
+.tax-details {
+  position: absolute;
+  z-index: 995;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+}
+.tax-details[hidden] { display: none; }
+
+.tax-details__backdrop { display: none; }         /* mobile drawer only */
+
+.tax-details__panel {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.16);
+  padding: 16px;
+  direction: rtl;
+}
+/* little arrow pointing up to the link (desktop tooltip); JS sets --arrow-x */
+.tax-details__panel::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: var(--arrow-x, 26px);
+  width: 12px;
+  height: 12px;
+  background: var(--white);
+  border-left: 1px solid var(--hairline);
+  border-top: 1px solid var(--hairline);
+  transform: rotate(45deg);
+}
+.tax-details__close { display: none; }             /* mobile drawer only */
+
+.tax-details__variant[hidden] { display: none; }
+
+/* ---- prices variant ---- */
+.tax-details__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 6px 0;
+}
+.tax-details__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--text);
+}
+.tax-details__ic { width: 20px; height: 20px; flex: none; }
+.tax-details__amount {
+  font-weight: var(--fw-medium);          /* match the room price weight — not heavy */
+  font-size: 18px;
+  line-height: 1;
+  color: var(--black);
+  direction: ltr;
+  white-space: nowrap;
+}
+.tax-details__note {
+  margin: 4px 0 0;
+  padding-inline-start: 28px;                       /* align under the label text */
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ---- terms variant ---- */
+.tax-details__text {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+  text-align: right;
+}
+.tax-details__link {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  font-weight: var(--fw-medium);
+  color: var(--color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tax-details__link:hover { color: var(--green-hover); }
+
+/* ---------- Mobile: centered popup ---------- */
+@media (max-width: 700px) {
+  .tax-details {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    width: auto;
+    max-width: none;
+    z-index: 1005;
+  }
+  .tax-details__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+  }
+  .tax-details__panel {
+    position: relative;
+    width: min(400px, 100%);
+    border: 0;
+    border-radius: 14px;
+    padding: 44px 18px 22px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  }
+  .tax-details__panel::before { display: none; }
+  .tax-details__close {
+    display: block;
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background: none;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .tax-details__close::before,
+  .tax-details__close::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 18px; height: 2px;
+    background: currentColor;
+  }
+  .tax-details__close::before { transform: translate(-50%, -50%) rotate(45deg); }
+  .tax-details__close::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+  .tax-details__row { padding: 8px 0; }
+  .tax-details__label { font-size: 16px; }
+  .tax-details__amount { font-size: 20px; }
+  .tax-details__note { font-size: 14px; }
+  .tax-details__text { font-size: 16px; }
+  .tax-details__link { font-size: 16px; }
+}
+
+/* ==========================================================================
+   tax-terms — popup with a paragraph of booking-terms text (opened from the
+   "terms" variant's link, when tax amounts aren't available from the supplier)
+   ========================================================================== */
+.tax-terms {
+  position: fixed;
+  inset: 0;
+  z-index: 1010;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.tax-terms[hidden] { display: none; }
+.tax-terms__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+}
+.tax-terms__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(520px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  padding: 58px 24px 26px;                  /* corner X, then a clear gap above the title */
+  direction: rtl;
+}
+.tax-terms__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+}
+.tax-terms__close::before,
+.tax-terms__close::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 19px; height: 2px;
+  background: currentColor;
+}
+.tax-terms__close::before { transform: translate(-50%, -50%) rotate(45deg); }
+.tax-terms__close::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+.tax-terms__close:hover { color: var(--color); }
+.tax-terms__title {
+  margin: 0 0 10px;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  text-align: right;
+}
+.tax-terms__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--light-text);
+  text-align: right;
+}
+
+/* extra text revealed by "המשך קריאה" — grows the dialog (height auto up to max) */
+.tax-terms__more[hidden] { display: none; }
+.tax-terms__more .tax-terms__text { margin-top: 14px; }
+
+.tax-terms__toggle {
+  margin-top: 14px;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  font-weight: var(--fw-medium);
+  color: var(--color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tax-terms__toggle:hover { color: var(--green-hover); }
+
+@media (max-width: 700px) {
+  .tax-terms { padding: 24px; align-items: center; }
+  .tax-terms__dialog {
+    width: min(400px, 100%);
+    border-radius: 14px;
+    padding: 56px 18px 22px;
+    max-height: 86vh;
+  }
+  .tax-terms__title { font-size: 18px; }
+  .tax-terms__text { font-size: 16px; }
+  .tax-terms__toggle { font-size: 16px; }
+}

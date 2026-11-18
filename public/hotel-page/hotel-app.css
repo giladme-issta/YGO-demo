@@ -1,0 +1,273 @@
+html[data-app-ready="false"] body { visibility: hidden; }
+.mobile-hotel-selector { display: none; }
+.hotel-gallery__cell[hidden],
+.hotel-gallery__counter[hidden],
+.room-gallery img[hidden],
+.room-gallery__counter[hidden],
+.room-gallery__controls[hidden] { display: none; }
+
+.hotel-app-status {
+  position: relative;
+  z-index: 20;
+  margin: 12px auto;
+  width: min(1200px, calc(100% - 32px));
+  padding: 10px 14px;
+  border: 1px solid #d5dbe0;
+  border-radius: 10px;
+  background: #f6f7f9;
+  color: #263238;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.hotel-app-status[hidden] { display: none; }
+.hotel-app-status[data-kind="error"] { border-color: #d7a09a; background: #fff7f5; }
+.hotel-app-status[data-kind="success"] { border-color: #a9d8b8; background: #f2fbf5; }
+
+.demo-commercial-note {
+  margin: 0 0 10px;
+  color: #6b5b39;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.tax-terms__demo-note {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fff8e9;
+  color: #6b5b39;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.hotel-title__price > .demo-commercial-note,
+.hotel-sticky__price > .demo-commercial-note,
+.flight-banner__action > .demo-commercial-note,
+.room-selection__main > .demo-commercial-note {
+  flex: 0 0 100%;
+}
+.hotel-sticky__price > .demo-commercial-note { text-align: center; }
+.room-card__demo-note { padding: 0 16px 8px; }
+.hotel-empty-state {
+  margin: 12px 0;
+  color: var(--light-text);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.hotel-facility-empty { padding: 18px; }
+.hotel-facility-preview { min-height: 132px; }
+.hotel-facility-preview[hidden] { display: none; }
+.hotel-facility-icon { font-size: 18px; font-weight: 700; }
+.hotel-location__place-pin { flex: none; }
+.hotel-location__list .hotel-empty-state { list-style: none; }
+
+.hotel-map__canvas {
+  width: 100%;
+  height: 100%;
+  transform: none !important;
+  transition: none;
+  will-change: auto;
+}
+.hotel-map__status {
+  position: absolute;
+  z-index: 5;
+  top: 12px;
+  right: 12px;
+  left: 70px;
+  margin: 0;
+  padding: 10px;
+  border-radius: 7px;
+  background: var(--white);
+  color: var(--text);
+  font-size: 13px;
+}
+.hotel-map__status[hidden] { display: none; }
+.hotel-map__source {
+  flex: none;
+  margin: 0;
+  padding: 10px 18px;
+  background: var(--white);
+  color: var(--light-text);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.hotel-map__source:empty { display: none; }
+.hotel-map__marker { font-family: inherit; }
+.hotel-map__marker:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+.hotel-map__marker:focus-visible .hotel-map__mtip { opacity: 1; }
+.hotel-map__zoom button:disabled { cursor: default; opacity: .5; }
+
+.hotel-room-photo-empty {
+  display: flex;
+  min-height: 190px;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: var(--light-text);
+  text-align: center;
+}
+.room-gallery__controls[hidden],
+.room-gallery__img[hidden],
+.room-gallery__under[hidden],
+.room-gallery__counter[hidden],
+.room-popup__arrows[hidden],
+.room-popup__counter[hidden] { display: none !important; }
+.room-gallery__empty { display: none; }
+.hotel-room-empty { padding: 20px; }
+.hotel-facility-group-empty { padding: 18px; }
+.hotel-chat__note[data-ai="available"] { color: var(--color); }
+.hotel-chat__chip[aria-disabled="true"] { opacity: .55; cursor: wait; }
+.hotel-chat__privacy {
+  margin: 0;
+  padding: 8px 18px;
+  color: var(--icon);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.about-hotel__source-note {
+  margin: 8px 0 0;
+  color: var(--icon);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.hc-bubble--error { border-inline-start: 3px solid #b5473e; }
+.hotel-title__stars[hidden] { display: none; }
+.hotel-title__rating[hidden] { display: none; }
+.hotel-location__map--unavailable { cursor: default; }
+.hotel-location__map--unavailable:hover::after { border-color: transparent; }
+.hotel-suggestions__title-note {
+  margin: 4px 0 14px;
+  color: var(--light-text);
+  font-size: 13px;
+}
+.suggestion-card__media--select {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  background: none;
+}
+.suggestion-card__media--select:focus-visible,
+.suggestion-card__cta:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+.suggestion-card__media--select { cursor: pointer; }
+.hotel-page-section-state { padding: 18px 0; color: var(--light-text); }
+.hotel-know__item[hidden],
+.hotel-experiences__card[hidden] { display: none; }
+.hotel-experiences__media--empty { display: none; }
+.hotel-title__tabs button:focus-visible,
+.hotel-location__more:focus-visible,
+.hotel-location__all-map:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+.search-summary__cdates,
+.search-summary__cpax,
+.search-summary__cedit {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.search-summary__cdates:focus-visible,
+.search-summary__cpax:focus-visible,
+.search-summary__cedit:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+.reviews__source-note { margin: 0 0 12px; color: var(--icon); font-size: 13px; line-height: 1.5; }
+.hotel-app-status a { color: var(--link); }
+
+@media (min-width: 769px) and (max-width: 1199px) {
+  .site-header__inner,
+  .search-summary__inner { min-width: 0; }
+  .site-header__nav {
+    min-width: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .site-header__nav::-webkit-scrollbar,
+  .search-summary__pill::-webkit-scrollbar { display: none; }
+  .site-header__link { flex: 0 0 auto; }
+  .search-summary__pill {
+    min-width: 0;
+    max-width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .facilities__arrow--prev,
+  .hotel-suggestions__arrow--prev { right: -16px; }
+  .facilities__arrow--next,
+  .hotel-suggestions__arrow--next { left: -16px; }
+}
+
+@media (max-width: 768px) {
+  .hotel-app-status { width: calc(100% - 24px); margin-block: 8px; }
+  .hotel-map .mapboxgl-ctrl-bottom-left,
+  .hotel-map .mapboxgl-ctrl-bottom-right { bottom: 115px; }
+  .site-header__inner.is-menu-open .site-header__nav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    z-index: 20;
+    inset-inline: 0;
+    top: 100%;
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 10px 16px;
+    background: var(--white);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .12);
+  }
+  .site-header__inner.is-menu-open { position: relative; }
+  .site-header__inner.is-menu-open .mobile-hotel-selector {
+    display: block;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hairline);
+  }
+  .mobile-hotel-selector__title {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: var(--fw-bold);
+  }
+  .mobile-hotel-selector__list {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .mobile-hotel-selector__button {
+    display: block;
+    width: 100%;
+    min-height: 42px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    text-align: right;
+    cursor: pointer;
+  }
+  .mobile-hotel-selector__button[aria-current="true"] {
+    border-color: #b8dfc5;
+    background: #f3faf6;
+    color: var(--color);
+    font-weight: var(--fw-semibold);
+  }
+  .mobile-hotel-selector__button:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 359px) {
+  .search-summary__cdates { min-width: 0; gap: 4px; padding-inline: 8px; }
+  .search-summary__cpax { min-width: 0; font-size: 12px; }
+  .search-summary__cdate { font-size: 12px; }
+  .search-summary__cedit { padding-inline: 8px; font-size: 12px; }
+  .search-summary__compact > * { min-width: 0; }
+}

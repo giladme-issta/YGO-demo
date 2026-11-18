@@ -1,0 +1,102 @@
+/* hotel-gallery — scoped to .hotel-gallery only. */
+
+.hotel-gallery { width: 100%; background: var(--white); }
+.hotel-gallery__inner { padding-block: 4px 24px; }
+
+/* left column + large image, laid out L→R and bottom-aligned */
+.hotel-gallery__grid {
+  display: flex;
+  direction: ltr;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.hotel-gallery__col {
+  flex: 493 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.hotel-gallery__pair {
+  display: flex;
+  gap: 16px;
+}
+.hotel-gallery__pair .hotel-gallery__cell { flex: 1 1 0; min-width: 0; }
+
+.hotel-gallery__main {
+  flex: 750 1 0;
+  min-width: 0;
+  position: relative;
+}
+
+/* every clickable photo cell */
+.hotel-gallery__cell {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: var(--radius-img);
+  overflow: hidden;
+  cursor: pointer;
+  width: 100%;
+}
+.hotel-gallery__cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .55s ease;
+}
+.hotel-gallery__cell:hover img { transform: scale(1.045); }
+
+/* aspect ratios reproduce the Figma proportions */
+.hotel-gallery__cell--big img       { aspect-ratio: 493 / 279; }
+.hotel-gallery__pair .hotel-gallery__cell img { aspect-ratio: 239 / 134; }
+.hotel-gallery__main .hotel-gallery__cell img { aspect-ratio: 750 / 430; }
+
+/* "+N photos" counter overlaid on the bottom-right of the large image */
+.hotel-gallery__counter {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-2);
+  border-radius: 10px;
+  background: var(--overlay);
+  color: var(--white);
+  cursor: pointer;
+  transition: background-color .25s ease, border-color .25s ease;
+}
+.hotel-gallery__counter:hover {
+  background: var(--color);
+  border-color: var(--color);
+}
+/* green icon (#2aae54) would vanish on the green hover fill → force it white */
+.hotel-gallery__counter-icon { transition: filter .25s ease; }
+.hotel-gallery__counter:hover .hotel-gallery__counter-icon {
+  filter: brightness(0) invert(1);
+}
+.hotel-gallery__counter-num {
+  font-size: 26px;
+  font-weight: var(--fw-regular);
+  line-height: 1;
+}
+.hotel-gallery__counter-icon { width: 26px; height: 26px; }
+
+/* ---- mobile: one full-bleed image ---- */
+@media (max-width: 768px) {
+  .hotel-gallery { order: 2; margin-top: -20px; }   /* overlaps the search pill's bottom half */
+  .hotel-gallery__inner { padding-block: 0; }
+  .hotel-gallery .band__inner { max-width: 100%; padding-inline: 0; }
+  .hotel-gallery__grid { gap: 0; }
+  .hotel-gallery__col { display: none; }
+  .hotel-gallery__main { flex: 1 1 100%; }
+  .hotel-gallery__cell { border-radius: 0; }
+  .hotel-gallery__main .hotel-gallery__cell img { aspect-ratio: 375 / 230; }
+  .hotel-gallery__counter { right: 12px; bottom: 12px; padding: 6px 12px; gap: 6px; }
+  .hotel-gallery__counter-num  { font-size: 22px; }
+  .hotel-gallery__counter-icon { width: 22px; height: 22px; }
+}

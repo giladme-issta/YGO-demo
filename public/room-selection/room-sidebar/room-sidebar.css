@@ -1,0 +1,100 @@
+/* room-sidebar — the right-hand column: the "בחירת חדרים" title + the
+   composition card ("בחירת חדר / 2 מבוגרים"). Sticky on desktop; on mobile it
+   moves to the top, the title hides and the card goes edge-to-edge. */
+.room-selection__sidebar {
+  flex: 0 0 179px;
+  position: sticky;
+  top: 24px;
+}
+
+.room-selection__title {
+  margin: 0 0 48px;
+  font-weight: var(--fw-medium);
+  font-size: 24px;
+  line-height: 1.1;
+  color: var(--black);
+  text-align: right;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.composition-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  width: 152px;
+  padding: 12px;
+  background: var(--white);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+}
+.composition-card__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  color: var(--text);
+  line-height: 1.2;
+}
+.composition-card__label {
+  font-weight: var(--fw-regular);
+  font-size: 20px;
+}
+.composition-card__value {
+  font-weight: var(--fw-medium);
+  font-size: 20px;
+  white-space: nowrap;
+}
+.composition-card__chevron {
+  width: 9px;
+  height: 11px;
+  object-fit: contain;
+  flex: none;
+  transform: rotate(-90deg);
+}
+
+/* ---------- Medium screens: title steps down with the layout ---------- */
+@media (min-width: 1001px) and (max-width: 1339px) {
+  .room-selection__title { font-size: 22px; }
+}
+@media (min-width: 1001px) and (max-width: 1259px) {
+  .room-selection__title { font-size: 21px; }
+}
+
+/* ---------- Mobile: top of the page, borderless, title hidden ---------- */
+@media (max-width: 1000px) {
+  .room-selection__sidebar {
+    order: 1;
+    position: static;
+    flex: none;
+    width: 100%;
+  }
+  .room-selection__title {
+    display: none;
+  }
+  .composition-card {
+    width: 100%;
+    padding: 2px;
+    border: 0;
+    border-radius: 0;
+    gap: 0;
+  }
+  .composition-card .composition-card__chevron {
+    display: none;
+  }
+  .composition-card__text {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+  }
+  .composition-card__label,
+  .composition-card__value {
+    font-size: 14px;
+  }
+}

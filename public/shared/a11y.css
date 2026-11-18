@@ -1,0 +1,30 @@
+/* a11y.css — shared accessibility helpers (loaded by the full pages).
+
+   Skip-link (WCAG 2.4.1 Bypass Blocks): invisible to mouse users; it only
+   appears when it receives keyboard focus — the first Tab on the page — and
+   slides in at the page start (top-right in RTL). Activating it moves focus to
+   the main content, past the repeated header/nav. ISSTA green on white = 4.56:1 (AA). */
+.skip-link {
+  position: fixed;
+  top: 10px; right: 10px; left: auto;
+  z-index: 10000;
+  background: #218741;
+  color: #fff;
+  padding: 11px 20px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 0.16s ease;
+}
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 3px solid #0a5;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) { .skip-link { transition: none; } }
+
+/* a content region focused via the skip-link shouldn't paint a focus ring */
+[id][tabindex="-1"]:focus { outline: none; }

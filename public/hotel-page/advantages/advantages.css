@@ -1,0 +1,93 @@
+/* advantages — scoped to .advantages only.
+   Shared info-section layout: title (right) · divider · content (left). */
+
+.advantages { width: 100%; background: var(--white); }
+
+.advantages__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--info-gap);
+  padding-block: 28px;
+}
+
+/* right-hand title column (fixed width keeps the 3 sections' dividers aligned) */
+.advantages__title {
+  flex: 0 0 var(--info-aside);
+  margin: 0;
+  text-align: right;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+  color: var(--text);
+}
+.advantages__divider {
+  flex: 0 0 1px;
+  align-self: stretch;
+  background: var(--hairline);
+}
+
+/* perks grid — 3 columns × 3 rows (9 perks) */
+.advantages__list {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 28px;
+}
+.advantages__item {
+  display: flex;
+  align-items: flex-start;   /* green check on the right (RTL start), text to its left */
+  gap: 12px;
+}
+/* keep the check on the FIRST line's level when the text wraps (0.7em = half the
+   1.4 line-height, minus half the 20px icon) — scales with the font size */
+.advantages__check {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: calc(0.7em - 10px);
+}
+.advantages__text {
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--text);
+  text-align: right;
+}
+
+/* "לראות עוד" expand link — mobile only (desktop shows all 9) */
+.advantages__more {
+  display: none;
+  align-self: flex-start;
+  margin-top: 2px;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: var(--fw-medium);
+  color: var(--link);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.advantages__more:hover { text-decoration: underline; }   /* same as about-hotel: underline on hover only */
+
+/* ---- tablet: 2 columns ---- */
+@media (min-width: 769px) and (max-width: 1000px) {
+  .advantages__list { grid-template-columns: repeat(2, 1fr); gap: 14px 24px; }
+}
+
+/* ---- mobile: single column, title stacks above the list, no divider ---- */
+@media (max-width: 768px) {
+  .advantages { order: 4; }                 /* after hotel-title (order 3) */
+  .advantages__inner { flex-direction: column; gap: 14px; padding-block: 20px; }
+  .advantages__divider { display: none; }
+  .advantages__title { flex: none; width: 100%; font-size: 18px; font-weight: var(--fw-semibold); }
+  .advantages__list { grid-template-columns: 1fr; gap: 14px; }
+  .advantages__text { font-size: 15px; }
+  /* collapse to 3 perks by default; the link expands the list downward */
+  .advantages__more { display: inline-block; }
+  .advantages__list:not(.is-expanded) .advantages__item:nth-child(n+4) { display: none; }
+}

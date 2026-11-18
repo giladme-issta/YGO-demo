@@ -1,0 +1,227 @@
+/* gallery-categories — the hotel "browse by category" modal that opens BEFORE
+   the full-screen lightbox. Full-bleed (no width cap — stretches with the
+   screen, up to ultra-wide). A title bar, a full-width scrollable row of
+   category tabs with ‹ / › arrows at the two ends, and a responsive photo grid
+   (desktop 4 cols · tablet 3 · mobile 2). Clicking a photo opens the shared
+   gallery-lightbox on top. Mobile adds a sticky "חזרה להמשך ההזמנה" button.
+   Sits below the lightbox (z 1000). */
+.gallery-categories {
+  position: fixed;
+  inset: 0;
+  z-index: 990;
+}
+.gallery-categories[hidden] { display: none; }
+
+.gallery-categories__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: var(--white);
+}
+
+/* full-bleed surface — no max-width, fills whatever the screen gives it */
+.gallery-categories__panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  overflow: hidden;
+}
+
+/* ---- title bar ---- */
+.gallery-categories__bar {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--hairline);
+}
+.gallery-categories__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--fw-bold);
+  color: var(--text);
+}
+.gallery-categories__close {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+}
+.gallery-categories__close::before,
+.gallery-categories__close::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 19px; height: 2px;
+  background: currentColor;
+}
+.gallery-categories__close::before { transform: translate(-50%, -50%) rotate(45deg); }
+.gallery-categories__close::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+.gallery-categories__close:hover { color: var(--color); }
+
+/* ---- category tabs: full-width row, scrolls sideways, arrows at both ends ---- */
+.gallery-categories__tabs {
+  position: relative;
+  flex: none;
+  border-bottom: 1px solid var(--hairline);
+}
+.gallery-categories__tablist {
+  display: flex;
+  gap: 36px;                     /* roomier spacing between tabs */
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  /* right padding matches the grid gutter so the first tab ("כל התמונות") lines
+     up with the photos' right edge; left padding leaves room for the ‹ arrow */
+  padding: 4px 14px 4px 58px;
+}
+.gallery-categories__tablist::-webkit-scrollbar { display: none; }
+.gallery-categories__tab {
+  flex: none;
+  padding: 12px 2px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  color: var(--icon);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.gallery-categories__tab:hover { color: var(--text); }
+.gallery-categories__tab.is-active {
+  color: var(--text);
+  font-weight: var(--fw-bold);
+  border-bottom-color: var(--color-2);
+}
+
+/* the two scroll arrows overlay the ends; JS toggles [hidden] by scroll position */
+.gallery-categories__scroll {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color .15s, border-color .15s;
+}
+.gallery-categories__scroll:hover { border-color: var(--color-2); color: var(--color); }
+.gallery-categories__scroll[hidden] { display: none; }
+.gallery-categories__scroll::before { content: ""; width: 8px; height: 8px; }
+.gallery-categories__scroll--left  { left: 12px; }
+.gallery-categories__scroll--left::before {
+  border-bottom: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  transform: translateX(2px) rotate(45deg);   /* ‹ points left */
+}
+.gallery-categories__scroll--right { right: 12px; }
+.gallery-categories__scroll--right::before {
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: translateX(-2px) rotate(45deg);  /* › points right */
+}
+
+/* ---- photo grid (scrolls inside the panel) ----
+   min-height:0 lets this flex child actually scroll; without it the grid grows to
+   fit every row and the photos get squeezed to cram all rows into view. With it,
+   cells keep their aspect-ratio height, the gaps stay fixed, and only the rows
+   that fit are shown — the rest scroll. */
+.gallery-categories__grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 16px;
+  align-content: start;
+}
+/* 16:10 via the padding-bottom trick: the cell height is always 62.5% of its
+   WIDTH, so the grid can never compress a row to cram more in — extra rows
+   simply overflow and scroll, and the gaps stay fixed. */
+.gallery-categories__cell {
+  position: relative;
+  height: 0;
+  padding: 0 0 62.5% 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.gallery-categories__cell[hidden] { display: none; }
+.gallery-categories__cell img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .3s ease;
+}
+.gallery-categories__cell:hover img { transform: scale(1.04); }
+
+/* ---- footer (mobile-only "back to booking" button) ---- */
+.gallery-categories__foot { display: none; }
+
+/* ---------- Tablet: 3 columns ---------- */
+@media (min-width: 701px) and (max-width: 1000px) {
+  .gallery-categories__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---------- Mobile: 2 columns, sticky back button ---------- */
+@media (max-width: 700px) {
+  .gallery-categories__bar { padding: 16px; }
+  .gallery-categories__title { font-size: 17px; }
+  .gallery-categories__tablist { gap: 24px; padding: 4px 10px 4px 44px; }
+  .gallery-categories__tab { font-size: 15px; }
+  .gallery-categories__scroll { width: 32px; height: 32px; }
+  .gallery-categories__scroll--left  { left: 8px; }
+  .gallery-categories__scroll--right { right: 8px; }
+  .gallery-categories__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 12px;
+  }
+  .gallery-categories__foot {
+    display: block;
+    flex: none;
+    padding: 12px 16px;
+    background: var(--white);
+    border-top: 1px solid var(--hairline);
+  }
+  .gallery-categories__back {
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-radius: 10px;
+    background: #218741;
+    color: var(--white);
+    font: inherit;
+    font-size: 17px;
+    font-weight: var(--fw-bold);
+    cursor: pointer;
+    transition: background-color .15s;
+  }
+  .gallery-categories__back:hover { background: var(--green-hover); }
+}

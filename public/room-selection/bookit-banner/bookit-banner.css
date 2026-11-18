@@ -1,0 +1,86 @@
+/* bookit-banner — "Bookit באיסתא" co-brand promo. Built 1:1 from Figma:
+     .bookit-banner   large bar above the room filters (desktop 278:9547 · mobile 278:15402)
+     .bookit-mini     small pill in a room-card header  (278:15268)
+   Gradient runs green→blue (left→right); the official Bookit logo SVGs are used
+   (horizontal on desktop, stacked on mobile / in the mini pill). */
+
+.bookit-banner,
+.bookit-mini { background: linear-gradient(to right, #e1ffea, #e6f7ff); }
+
+/* ============ large banner ============ */
+.bookit-banner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 14px 10px 9px;        /* T R B L (Figma) */
+  border-radius: 12px;
+  margin-bottom: 20px;               /* same gap the filters keep to the first room card */
+}
+.bookit-banner__content {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;       /* RTL start = right → logo · line · text packed right */
+  gap: 24px;
+}
+.bookit-banner__logo--lg { height: 20px; }                          /* desktop: horizontal logo */
+/* parent added so this beats room-layout's `.room-selection img { display:block }` */
+.bookit-banner .bookit-banner__logo--sm { display: none; width: 50px; }   /* mobile: stacked logo */
+.bookit-banner__line { flex: none; width: 1px; height: 26px; background: var(--hairline); }
+.bookit-banner__text {
+  font-size: 24px;
+  font-weight: var(--fw-regular);
+  line-height: 1;
+  color: var(--text);
+  white-space: nowrap;
+}
+.bookit-banner__br { display: none; }   /* desktop: one line */
+.bookit-banner__btn {
+  flex: none;
+  height: 40px;
+  padding: 0 25px;
+  border: 0;
+  border-radius: 10px;
+  background: #218741;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+  transition: background-color .2s ease;
+}
+.bookit-banner__btn:hover { background: var(--green-hover); }
+
+/* ============ mini banner (room-card header) ============ */
+.bookit-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 7px 6px 8px 7px;          /* T R B L (Figma) */
+  border-radius: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.bookit-mini__logo { flex: none; width: 41px; height: auto; }   /* stacked, on the right */
+.bookit-mini__text {
+  font-size: 15px;
+  font-weight: var(--fw-regular);
+  line-height: 1.2;
+  color: var(--color);
+  white-space: nowrap;
+}
+
+/* ---------- mobile: stacked logo · 2-line text · smaller button ---------- */
+@media (max-width: 768px) {
+  .bookit-mini { display: none; }                 /* mini banner is desktop-only */
+
+  .bookit-banner { gap: 12px; }
+  .bookit-banner__content { gap: 12px; }
+  .bookit-banner .bookit-banner__logo--lg { display: none; }
+  .bookit-banner .bookit-banner__logo--sm { display: block; }
+  .bookit-banner__text { font-size: 15px; line-height: 1; white-space: normal; }
+  .bookit-banner__br { display: inline; }        /* force the Figma line break */
+  .bookit-banner__btn { height: 30px; padding: 0 19px; font-size: 9px; }
+}

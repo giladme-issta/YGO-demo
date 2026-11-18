@@ -1,0 +1,121 @@
+/* hotel-reviews — "חוות דעת": guest-reviews panel in the shared info-section
+   grid (title right · divider · content left). The content card: a rating block
+   (0–100 score + per-category bars) on the right, a "מה האורחים אומרים" narrative
+   with praises / criticisms on the left. Accessible: scores/labels are real text
+   (the bars are decorative, aria-hidden). */
+
+.reviews { width: 100%; background: var(--white); }
+
+.reviews__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--info-gap);
+  padding-block: 28px;
+}
+.reviews__title {
+  flex: 0 0 var(--info-aside);
+  margin: 0;
+  text-align: right;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+  color: var(--text);
+}
+.reviews__divider { flex: 0 0 1px; align-self: stretch; background: var(--hairline); }
+
+.reviews__content { flex: 1 1 auto; min-width: 0; }
+
+/* the card: rating (right) · narrative (left) */
+.reviews__grid {
+  display: grid;
+  grid-template-columns: 0.82fr 1.18fr;
+  gap: 30px;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  padding: 24px 26px;
+}
+
+/* ---- rating block ---- */
+.reviews__rating { min-width: 0; }
+.reviews__rating-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  color: var(--color);
+}
+.reviews__rating-label svg { width: 16px; height: 16px; flex: none; }
+.reviews__score { margin: 0; display: flex; align-items: baseline; gap: 6px; }
+.reviews__score-num { font-size: 46px; font-weight: var(--fw-bold); line-height: 1; color: var(--text); }
+.reviews__score-max { font-size: 16px; color: var(--icon); }
+.reviews__score-note { margin: 7px 0 18px; font-size: 12.5px; line-height: 1.4; color: var(--icon); }
+
+.reviews__bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.reviews__bar {
+  display: grid;
+  grid-template-columns: 84px 26px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+.reviews__bar-label { font-size: 14px; color: var(--text); text-align: right; white-space: nowrap; }
+.reviews__bar-val { font-size: 14px; font-weight: var(--fw-bold); color: var(--text); text-align: left; }
+.reviews__bar-track { height: 8px; border-radius: 999px; background: #eef2f5; overflow: hidden; }
+.reviews__bar-fill { display: block; height: 100%; background: var(--color); border-radius: 999px; }
+
+/* ---- narrative ---- */
+.reviews__said { min-width: 0; }
+.reviews__said-title { margin: 0 0 10px; font-size: 20px; font-weight: var(--fw-bold); color: var(--text); }
+.reviews__summary { margin: 0; font-size: 15px; line-height: 1.6; color: var(--light-text); }
+
+.reviews__lists { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 18px; }
+.reviews__col-title { margin: 0 0 11px; font-size: 15px; font-weight: var(--fw-bold); color: var(--text); }
+.reviews__pts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+.reviews__pt { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.45; color: var(--text); }
+.reviews__ic { width: 17px; height: 17px; flex: none; margin-top: 1px; }
+.reviews__pt--good .reviews__ic { color: var(--color); }
+.reviews__pt--bad  .reviews__ic { color: #8a5a00; }   /* caution amber — AA on white */
+
+/* "לראות עוד" expand link — mobile only (desktop shows the full card) */
+.reviews__more {
+  display: none;
+  align-self: flex-start;
+  margin-top: 14px;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: var(--fw-medium);
+  color: var(--link);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.reviews__more:hover { text-decoration: underline; }   /* same as about-hotel: underline on hover only */
+
+/* ---- tablet ---- */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .reviews__grid { grid-template-columns: 1fr; gap: 22px; }
+  .reviews__said { border-inline-end: 0; padding-inline-end: 0; border-top: 1px solid var(--hairline); padding-top: 20px; }
+}
+
+/* ---- mobile: stack everything ---- */
+@media (max-width: 768px) {
+  .reviews { order: 12; }   /* right after hotel-experiences (order 11) */
+  /* stretch: in a column, the desktop flex-start would shrink the card to its
+     content (~265px) instead of the full grid width */
+  .reviews__inner { flex-direction: column; align-items: stretch; gap: 14px; padding-block: 20px; }
+  .reviews__divider { display: none; }
+  .reviews__title { flex: none; width: 100%; font-size: 18px; font-weight: var(--fw-semibold); }
+  .reviews__grid { grid-template-columns: 1fr; gap: 20px; padding: 18px 16px; }
+  .reviews__said { border-inline-end: 0; padding-inline-end: 0; border-top: 1px solid var(--hairline); padding-top: 18px; }
+  .reviews__score-num { font-size: 40px; }
+  .reviews__lists { grid-template-columns: 1fr; gap: 16px; }
+  /* collapsed by default: show the bars + 2 praises only, then the expand link */
+  .reviews__more { display: inline-block; }
+  .reviews:not(.is-expanded) .reviews__said-title,
+  .reviews:not(.is-expanded) .reviews__summary { display: none; }
+  .reviews:not(.is-expanded) .reviews__lists .reviews__col:nth-child(2) { display: none; }
+  .reviews:not(.is-expanded) .reviews__lists .reviews__col:first-child .reviews__pt:nth-child(n+3) { display: none; }
+}

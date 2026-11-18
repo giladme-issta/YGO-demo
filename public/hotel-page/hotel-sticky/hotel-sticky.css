@@ -1,0 +1,39 @@
+/* hotel-sticky — the on-scroll sticky nav bar (desktop only). Appears once the
+   deal-title tabs scroll past the top: section tabs on the right, the two priced
+   CTAs on the left. Its active tab (green underline) tracks the section in view.
+   Built 1:1 from Figma (177:1558); reuses the hotel-title tab + price atoms. */
+
+.hotel-sticky {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 1000;
+  min-height: 83px;
+  background: var(--white);
+  box-shadow: 0 4px 4px rgba(42, 51, 53, 0.1);
+  transform: translateY(-100%);        /* parked above the viewport */
+  transition: transform .25s ease;
+}
+.hotel-sticky.is-visible { transform: translateY(0); }
+
+.hotel-sticky__inner {
+  min-height: 83px;
+  padding-block: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+  justify-content: space-between;      /* tabs (right) · prices (left) */
+}
+
+/* tabs reuse the hotel-title atoms — just drop the top margin here */
+.hotel-sticky__tabs { margin-top: 0; flex-wrap: wrap; gap: 12px 24px; }
+
+/* price block — two columns split by a divider (reuse hotel-title atoms) */
+.hotel-sticky__price { display: flex; align-items: center; gap: 20px; flex: none; }
+.hotel-sticky .hotel-title__price-col { padding-bottom: 0; }
+.hotel-sticky .hotel-title__price-line { flex-wrap: wrap; gap: 0 10px; }
+.hotel-sticky .hotel-title__cta { font-size: 16px; }      /* Figma sticky button */
+.hotel-sticky .hotel-title__price-sep { height: 68px; }
+
+/* desktop-only */
+@media (max-width: 768px) { .hotel-sticky { display: none; } }

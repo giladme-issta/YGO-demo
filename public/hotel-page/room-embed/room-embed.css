@@ -1,0 +1,66 @@
+/* room-embed — thin wrapper that hosts the room-selection module inside the
+   full hotel page (below the flight banner). The hotel <body> is a flex column,
+   and .room-selection centres itself with margin:auto — as a direct flex child
+   that would shrink-to-content, so we wrap it in this full-width block.
+   Also holds the hotel-page-only MOBILE tweaks to the embedded room module
+   (scoped to .room-embed, so the standalone room-selection pages are untouched). */
+
+.room-embed { width: 100%; }
+.room-embed .room-option[hidden],
+.room-embed .room-option__divider[hidden],
+.room-embed .room-card[hidden] { display: none; }
+
+/* ---- mobile room module (≤1000, the module's own stacked breakpoint) ---- */
+@media (max-width: 1000px) {
+  /* keep the real "בחירת חדרים" heading for screen readers (the module hides it
+     on mobile); the visible title is the composition label below */
+  .room-embed .room-selection__title {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* "בחירת חדר" = a section title like the other hotel modules (18px semibold);
+     the guests sit opposite it on ONE line, regular weight */
+  .room-embed .composition-card__text { align-items: baseline; gap: 12px; }
+  .room-embed .composition-card__label {
+    font-size: 18px;
+    font-weight: var(--fw-semibold);
+    line-height: 1.25;
+    color: var(--text);
+  }
+  .room-embed .composition-card__value {
+    font-size: 15px;
+    font-weight: var(--fw-regular);
+    color: var(--text);
+  }
+  .room-embed .composition-card__value br { display: none; }   /* multi-room: "2 מבוגרים 2 ילדים" on one line */
+
+  /* filter chips: ONE row, horizontal scroll, bled to the LEFT screen edge (no
+     premature cut); the first chip stays aligned with the content on the right.
+     12px = the room module's mobile side padding. */
+  .room-embed .room-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline-end: -12px;
+    padding-inline-end: 12px;
+    padding-block: 2px;                  /* room for the active chip's inset ring / focus outline */
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .room-embed .room-filters::-webkit-scrollbar { display: none; }
+  .room-embed .filter-chip { flex: none; }
+}
+
+/* mobile flow order: hotel-location(7) · flight-banner(8) · room-embed(9) ·
+   hotel-know(10) · hotel-experiences(11) */
+@media (max-width: 768px) {
+  .room-embed { order: 9; }
+}

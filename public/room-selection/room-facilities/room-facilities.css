@@ -1,0 +1,98 @@
+/* room-facilities — under the room photo: fact "labels" (chips), a short Hebrew
+   description, an optional secondary "מיטות" line, and a SINGLE "מידע נוסף" link
+   that opens the room-details popup. Accessible by default: chip/link/text meet
+   AA contrast, the link is a real focusable button and is underlined (never
+   colour-only). */
+.room-facilities {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* ---------- labels / chips ---------- */
+.room-facilities__labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+.room-facilities__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  background: #eef2f5;          /* light neutral */
+  border-radius: 999px;
+  font-weight: var(--fw-medium);
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text);          /* #2a3335 on #eef2f5 ≈ 12:1 — AA pass */
+  white-space: nowrap;
+  unicode-bidi: plaintext;
+}
+
+/* ---------- short description paragraph ---------- */
+.room-facilities__desc-text {
+  margin: 0;
+  width: 100%;
+  font-weight: var(--fw-regular);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--light-text);    /* #444 — AA pass */
+  text-align: right;
+}
+
+/* ---------- secondary "מיטות" line ---------- */
+.room-facilities__beds {
+  margin: 0;
+  width: 100%;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--icon);          /* #687482 — AA pass on white (4.76) */
+  text-align: right;
+}
+.room-facilities__beds strong { color: var(--light-text); font-weight: var(--fw-semibold); }
+
+/* ---------- single "more info" link (button that opens the popup) ---------- */
+.room-facilities__more {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: var(--fw-medium);
+  font-size: 15px;
+  line-height: 1.1;
+  color: var(--link, #1879b9); /* site blue text-link (~4.7:1 on white, AA); fallback for the room module's own tokens */
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.room-facilities__more:hover { text-decoration: underline; }   /* like the other blue links: underline on hover only */
+.room-facilities__more:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Medium tiers: tighten type a touch ---------- */
+@media (min-width: 1001px) and (max-width: 1339px) {
+  .room-facilities__chip      { font-size: 13px; }
+  .room-facilities__desc-text { font-size: 14px; }
+  .room-facilities__beds      { font-size: 12.5px; }
+  .room-facilities__more      { font-size: 14px; }
+}
+@media (min-width: 1001px) and (max-width: 1259px) {
+  .room-facilities__chip      { padding: 4px 10px; }
+}
+
+/* ---------- Mobile (<=1000px): chips + link beside the photo, prose hidden ---------- */
+@media (max-width: 1000px) {
+  .room-facilities {
+    gap: 8px;
+    padding-inline-start: 116px;   /* clear the room thumbnail */
+    padding-bottom: 6px;
+  }
+  .room-facilities__desc-text,
+  .room-facilities__beds { display: none; }  /* keep the mobile card compact */
+  .room-facilities__chip { font-size: 13px; padding: 4px 10px; }
+  .room-facilities__more { font-size: 14px; }
+}

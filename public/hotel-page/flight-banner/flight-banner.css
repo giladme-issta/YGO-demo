@@ -1,0 +1,128 @@
+/* flight-banner — "מוסיפים טיסה": delicate flight cross-sell banner.
+   Full-grid-width band inviting a guest who is viewing the hotel to add a
+   flight to the deal. Code-built: live text, a real <button>, and a refined
+   airplane graphic + dashed flight-path motif — soft brand-green, delicate,
+   the opposite of the old crude blue bar. Sits between the hotel-info sections
+   and room selection (last band on the hotel page). */
+
+.flight-banner { width: 100%; background: var(--white); }
+
+.flight-banner__inner { padding-block: 8px 30px; }
+
+.flight-banner__card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 22px 30px;
+  border-radius: 20px;
+  border: 1px solid #dcefe3;
+  background: linear-gradient(100deg, #e9f6ee 0%, #f4fbf8 42%, #ffffff 80%);
+  box-shadow: 0 10px 30px rgba(20, 60, 40, .06);
+  /* align the card to the "מיקום המלון" content rectangle: inset from the right
+     by the info-section title column (aside + 2 gaps + divider), not full grid */
+  margin-inline-start: calc(var(--info-aside) + var(--info-gap) * 2 + 1px);
+}
+
+/* delicate dashed flight path arcing across the whole band (decorative) */
+.flight-banner__path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  color: var(--color-2);
+}
+
+/* refined airplane graphic in a floating white badge (right / start) */
+.flight-banner__plane {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--white);
+  border: 1px solid #d3ecdd;
+  box-shadow: 0 8px 20px rgba(42, 174, 84, .18);
+  color: var(--color-2);
+}
+.flight-banner__plane svg { width: 40px; height: 40px; }
+
+.flight-banner__copy { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; }
+.flight-banner__title {
+  margin: 0;
+  font-size: 23px;
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  line-height: 1.25;
+}
+
+/* price + CTA (left / end) */
+.flight-banner__action {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.flight-banner__price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* RTL → right-aligned */
+  line-height: 1.15;
+}
+.flight-banner__from { font-size: 13px; color: var(--light-text); }
+.flight-banner__amount { font-size: 27px; font-weight: var(--fw-bold); color: var(--text); }
+.flight-banner__cur { font-size: 18px; font-weight: var(--fw-semibold); margin-inline-start: 2px; }
+.flight-banner__sub { margin-top: 4px; font-size: 11.5px; color: var(--icon); max-width: 190px; }
+
+.flight-banner__cta {
+  flex: none;
+  border: 0;
+  cursor: pointer;
+  background: #218741;
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: var(--fw-semibold);
+  padding: 13px 28px;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(42, 174, 84, .28);
+  transition: background .2s ease, transform .15s ease, box-shadow .2s ease;
+  white-space: nowrap;
+}
+.flight-banner__cta:hover { background: var(--green-hover); transform: translateY(-1px); box-shadow: 0 10px 22px rgba(42, 174, 84, .34); }
+.flight-banner__cta:active { transform: translateY(0); box-shadow: 0 6px 14px rgba(42, 174, 84, .28); }
+
+/* ---- mobile: stack into a compact card ---- */
+@media (max-width: 768px) {
+  .flight-banner { order: 8; }
+  .flight-banner__inner { padding-block: 4px 22px; }
+  .flight-banner__path { display: none; }   /* wide-band motif — off on the tall mobile card */
+  .flight-banner__card {
+    margin-inline-start: 0;                  /* full width on mobile */
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 16px;
+    padding: 22px 20px;
+  }
+  .flight-banner__plane { width: 60px; height: 60px; margin-inline: auto; }
+  .flight-banner__plane svg { width: 32px; height: 32px; }
+  .flight-banner__title { font-size: 20px; text-align: center; }
+  .flight-banner__action {
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 4px;
+    border-top: 1px solid #dcefe3;
+  }
+  .flight-banner__price { align-items: center; }
+  .flight-banner__sub { max-width: none; text-align: center; }
+  .flight-banner__cta { width: 100%; padding-block: 14px; }
+}

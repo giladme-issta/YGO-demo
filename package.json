@@ -1,0 +1,16 @@
+{
+  "name": "ygo-hotel-details-poc",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Eight-hotel Hebrew-first YGO content demo using the Issta mock UI",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/main.mjs",
+    "start:live": "node --env-file-if-exists=.env server/main.mjs --live",
+    "start:sample": "node --env-file-if-exists=.env server/main.mjs --sample",
+    "sync": "node scripts/sync-hotels.mjs",
+    "test": "node --test",
+    "check": "node scripts/check-syntax.mjs"
+  }
+}

@@ -1,0 +1,42 @@
+/* room-filters — the row of multi-select filter chips above the room list. */
+.room-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.filter-chip {
+  padding: 12px;
+  background: var(--white);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  font-family: var(--font);
+  font-weight: var(--fw-regular);
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--text);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.filter-chip:hover {
+  border-color: var(--color);
+}
+.filter-chip--active {
+  border-color: var(--color);
+  color: var(--color);
+  box-shadow: inset 0 0 0 1px var(--color);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 1000px) {
+  .room-filters {
+    justify-content: flex-start;
+  }
+  .filter-chip {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}

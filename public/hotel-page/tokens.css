@@ -1,0 +1,69 @@
+/* ==========================================================================
+   tokens.css — the ONLY shared stylesheet.
+   Design tokens (colors, spacing, typography, radii) pulled 1:1 from the
+   Figma variables of the ISSTA project. Every component CSS references these
+   custom properties; no component hard-codes a raw value that lives here.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
+
+:root {
+  /* --- brand colors (Figma variables) --- */
+  --color:          #098137;   /* "Color"   — primary green: labels, prices, "עריכה" */
+  --color-2:        #2aae54;   /* "Color 2" — bright green: buttons, borders, rating */
+  --green-hover:    #1a6c34;   /* darker green for button hover (matches room module) */
+  --link:           #1879b9;   /* text links (see-more / map / share) — blue, not green */
+  --text:           #2a3335;   /* "text"    — primary text */
+  --light-text:     #444444;   /* "light text" */
+  --icon:           #687482;   /* "Color 6" — muted icon gray */
+  --white:          #ffffff;
+
+  /* --- derived / supporting colors --- */
+  --star:           #ec9b00;   /* star fill (from star.svg) */
+  --badge-soft:     #dcf1e3;   /* "מומלץ איסתא" soft-green chip background */
+  --hairline:       #e3e3e3;   /* thin dividers */
+  --overlay:        rgba(0, 0, 0, 0.65); /* gallery counter background */
+
+  /* --- typography --- */
+  --font: 'Rubik', 'Helvetica Neue', Arial, sans-serif;
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold:600;
+  --fw-bold:    700;
+
+  /* --- layout --- */
+  --page-max: 1254px;   /* centered content width */
+  --page-pad: 16px;     /* horizontal gutter on small screens */
+  --radius-img: 9px;
+
+  /* info sections (advantages · about-hotel · facilities) shared geometry —
+     one column width + gap so the three vertical dividers line up */
+  --info-aside: 130px;  /* right-hand title column width (wraps "אודות המלון" / "מתקנים פופולריים" to two lines) */
+  --info-gap:   40px;   /* gap between title · divider · content */
+}
+
+/* Minimal shared reset — foundational, applies to every component. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* column flow so components can be re-ordered per breakpoint (mobile moves
+     the gallery directly under the header). Desktop keeps DOM order. */
+  display: flex;
+  flex-direction: column;
+}
+
+img { display: block; max-width: 100%; }
+
+/* Shared centered content wrapper used by every band. Layout-only, token-driven. */
+.band__inner {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-pad);
+}

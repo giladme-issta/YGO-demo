@@ -1,0 +1,24 @@
+<svg viewBox="0 0 1160 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <filter id="mapSoft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="15"/>
+    </filter>
+  </defs>
+  <!-- solid base keeps the banner edges clean; only the map shapes are softened -->
+  <rect width="1160" height="180" fill="#f4efe3"/>
+  <g filter="url(#mapSoft)" opacity="0.9">
+    <ellipse cx="30" cy="18" rx="130" ry="60" fill="#d8e7bb"/>
+    <ellipse cx="360" cy="185" rx="150" ry="55" fill="#dfe8cd"/>
+    <ellipse cx="720" cy="10" rx="120" ry="45" fill="#e0ead0"/>
+    <ellipse cx="1090" cy="20" rx="100" ry="50" fill="#d6e6b9"/>
+    <ellipse cx="1120" cy="170" rx="120" ry="60" fill="#d3e4b4"/>
+    <g stroke="#e4dcc6" stroke-width="8" fill="none" stroke-linecap="round">
+      <path d="M-20 70 L1180 92"/>
+      <path d="M-20 130 L1180 120"/>
+      <path d="M250 -10 L300 190"/>
+      <path d="M640 -10 L690 190"/>
+    </g>
+    <path d="M980 -20 C 940 40 1030 80 995 120 C 970 150 1010 175 1000 200"
+          fill="none" stroke="#8fd2f0" stroke-width="34" stroke-linecap="round"/>
+  </g>
+</svg>

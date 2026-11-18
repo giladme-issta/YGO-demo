@@ -1,0 +1,115 @@
+/* hotel-experiences — "חוויות במלון": image-led experience cards in the shared
+   info-section grid (title right · divider · 3-up content left). Up to two rows
+   of three cards. Each card: photo + title + short copy + a "מידע נוסף" link
+   (phase 1 — the link announces intent; the host wires the detail view).
+   Accessible: images have alt text, the link is a focusable underlined button. */
+
+.hotel-experiences { width: 100%; background: var(--white); }
+
+.hotel-experiences__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--info-gap);
+  padding-block: 28px;
+}
+.hotel-experiences__title {
+  flex: 0 0 var(--info-aside);
+  margin: 0;
+  text-align: right;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+  color: var(--text);
+}
+.hotel-experiences__divider { flex: 0 0 1px; align-self: stretch; background: var(--hairline); }
+
+/* 3-up grid; 6 cards wrap to two rows */
+.hotel-experiences__grid {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.hotel-experiences__card {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(20, 30, 40, 0.07);
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+.hotel-experiences__card:hover { transform: translateY(-6px); box-shadow: 0 16px 34px rgba(20, 30, 40, 0.13); }
+
+.hotel-experiences__media { position: relative; aspect-ratio: 3 / 2; overflow: hidden; background: #e9edf0; flex: none; }
+.hotel-experiences__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.hotel-experiences__card:hover .hotel-experiences__media img { transform: scale(1.06); }
+
+.hotel-experiences__body {
+  padding: 14px 16px 16px;
+  text-align: right;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.hotel-experiences__h { margin: 0; font-size: 18px; font-weight: var(--fw-bold); color: var(--text); }
+.hotel-experiences__rule { width: 34px; height: 3px; border-radius: 2px; background: var(--color-2); margin: 9px 0 10px; }
+.hotel-experiences__p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--light-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.hotel-experiences__card.is-expanded .hotel-experiences__p {
+  display: block;
+  overflow: visible;
+}
+.hotel-experiences__more {
+  align-self: flex-start;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.hotel-experiences__more[hidden] { display: none; }
+.hotel-experiences__more:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+.hotel-experiences__image-note {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--text);
+  font-size: 12px;
+}
+
+/* ---- tablet: 2-up ---- */
+@media (min-width: 769px) and (max-width: 1000px) {
+  .hotel-experiences__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---- mobile: single column, image on top (sits below "חשוב לדעת") ---- */
+@media (max-width: 768px) {
+  .hotel-experiences { order: 11; }
+  .hotel-experiences__inner { flex-direction: column; gap: 16px; padding-block: 20px; }
+  .hotel-experiences__divider { display: none; }
+  .hotel-experiences__title { flex: none; width: 100%; font-size: 18px; font-weight: var(--fw-semibold); }
+  .hotel-experiences__grid { grid-template-columns: 1fr; gap: 14px; }
+  .hotel-experiences__media { aspect-ratio: 16 / 9; }
+  .hotel-experiences__h { font-size: 17px; }
+  .hotel-experiences__p { font-size: 14px; }
+}

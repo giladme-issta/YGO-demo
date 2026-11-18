@@ -1,0 +1,183 @@
+/* suggestion-card — one "hotel that might interest you" card (image + rating badge,
+   stars, name, location, distance, two amenity columns, and a green CTA).
+   Built 1:1 from Figma (node 1066:10831 · card 302.75 × 475). RTL: everything is
+   right-aligned and every icon sits to the RIGHT of its text. Token-driven; the only
+   hard-coded value is the module-specific card border/divider colour (#dce0ef). */
+
+.suggestion-card {
+  display: flex;
+  flex-direction: column;
+  height: 511px;                    /* fixed hotel-item height (Figma, with the price row) */
+  padding: 4px 0 12px;
+  background: var(--white);
+  border: 1px solid #dce0ef;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(20, 25, 47, 0.09);
+  text-align: right;
+}
+
+/* ---------- image + rating badge ---------- */
+.suggestion-card__media {
+  position: relative;
+  display: block;
+  height: 218px;
+  margin: 0 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex: none;
+  text-decoration: none;
+}
+.suggestion-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease; }
+.suggestion-card__media:hover .suggestion-card__img { transform: scale(1.045); }   /* gentle zoom on hover (like the top gallery) */
+
+/* rating badge — the NUMBER sits on the right, the word to its left (order: -1) */
+.suggestion-card__badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px;
+  padding-inline-end: 6px;           /* breathing room on the word (left) side */
+  background: var(--white);
+  border-radius: 8px;
+}
+.suggestion-card__badge-label {
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  color: var(--color);              /* #098137 */
+  line-height: 1;
+}
+.suggestion-card__score {
+  order: -1;                         /* number on the right */
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #218741;       /* deep green — AA contrast on white */
+  color: var(--white);
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  line-height: 1.15;
+}
+
+/* ---------- body: details on top, amenities pinned to the bottom ---------- */
+.suggestion-card__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 14px;
+}
+
+/* details are RIGHT-aligned; name→location→distance are tight & constant */
+.suggestion-card__details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;          /* RTL: flex-start = right */
+  gap: 2px;
+}
+
+.suggestion-card__stars { display: flex; gap: 1px; margin-bottom: 5px; }
+.suggestion-card__stars img { width: 15.77px; height: 15.77px; }
+
+.suggestion-card__name {
+  margin: 0;
+  width: 100%;
+  font-size: 17px;
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;            /* up to two lines; 1-line names stay one line */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.suggestion-card__place {
+  margin: 0;
+  font-size: 14px;
+  font-weight: var(--fw-regular);
+  color: var(--text);
+  line-height: 1.2;
+}
+
+/* distance — the location pin sits on the RIGHT, tight to the text (order: -1) */
+.suggestion-card__distance {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 13px;
+  font-weight: var(--fw-regular);
+  color: var(--icon);               /* "ממרכז" gray */
+  line-height: 1.2;
+}
+.suggestion-card__distance b { font-weight: var(--fw-regular); color: var(--text); }  /* "500 מ׳" */
+.suggestion-card__distance img { order: -1; width: 12.3px; height: 14.8px; }   /* pin's natural aspect — no stretch */
+
+/* two amenity columns, each right-aligned with the icon to the RIGHT of the text */
+.suggestion-card__amenities { display: flex; gap: 10px; }
+.suggestion-card__amenity-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;          /* RTL: right */
+  gap: 5px;
+}
+.suggestion-card__amenity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: var(--fw-regular);
+  color: var(--icon);
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.suggestion-card__amenity img { order: -1; width: 20px; height: 20px; flex: none; }   /* icon on the right */
+
+/* ---------- footer: divider · stay (nights+dates+guests) · price CTA ---------- */
+.suggestion-card__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.suggestion-card__divider {
+  height: 1px;
+  background: #dce0ef;
+}
+/* "4 לילות (11-14.7), 2 מבוגרים" — nights, dates and composition */
+.suggestion-card__stay {
+  margin: 0;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: var(--fw-regular);
+  color: var(--text);
+  text-align: center;
+  line-height: 1.1;
+}
+.suggestion-card__cta-wrap { padding: 0 12px; }
+.suggestion-card__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 100%;
+  min-height: 50px;
+  padding: 6px 20px;
+  border: 0;
+  border-radius: 10px;
+  background: #218741;       /* deep green — AA contrast on white */
+  color: var(--white);
+  font-family: var(--font);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .15s;
+}
+.suggestion-card__cta-main { font-size: 19px; font-weight: var(--fw-bold); line-height: 1.05; }
+.suggestion-card__cta-sub { font-size: 15px; font-weight: var(--fw-regular); line-height: 1.15; }
+.suggestion-card__cta:hover { background: var(--green-hover); }

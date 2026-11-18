@@ -1,0 +1,234 @@
+/* hotel-location — "מיקום המלון": a clickable blurred-map banner (hotel-photo
+   bubble + green CTA), a disclaimer, and a list of nearby attractions with a
+   "more" / "open map" link pair. Shared info-section layout (title right ·
+   divider · content left); the whole banner + the map links open the map
+   component (built separately) via a bubbling "hotel-location:open-map" event. */
+
+.hotel-location { width: 100%; background: var(--white); }
+
+.hotel-location__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--info-gap);
+  padding-block: 28px;
+}
+.hotel-location__title {
+  flex: 0 0 var(--info-aside);
+  margin: 0;
+  text-align: right;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+  color: var(--text);
+}
+.hotel-location__divider { flex: 0 0 1px; align-self: stretch; background: var(--hairline); }
+
+.hotel-location__body { flex: 1 1 auto; min-width: 0; }
+
+/* bordered card wrapping the whole module */
+.hotel-location__card {
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  padding: 22px 26px 24px;
+}
+
+.hotel-location__address {
+  margin: 0 0 14px;
+  font-size: 18px;
+  color: var(--text);
+  direction: ltr;        /* keep "123 Canal Street…" in reading order… */
+  text-align: right;     /* …while pinning the block to the right edge */
+}
+
+/* ---- map banner (the whole element is the button) ---- */
+.hotel-location__map {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 107px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;         /* rounds the static image reliably (no filtered/transformed child) */
+  background: none;
+  cursor: pointer;
+}
+/* the map image, shown as-is (pre-softened inside the SVG) — no motion */
+.hotel-location__map-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* 1px green frame on hover (overlay so it follows the rounded corners) */
+.hotel-location__map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  pointer-events: none;
+  transition: border-color .2s ease;
+}
+.hotel-location__map:hover::after { border-color: var(--color-2); }
+
+/* green CTA button (visual only — the parent element is the real button), left */
+.hotel-location__map-cta {
+  position: absolute;
+  top: 50%;
+  left: 22px;
+  transform: translateY(-50%);
+  padding: 12px 26px;
+  border-radius: 8px;
+  background: #218741;
+  color: var(--white);
+  font-size: 17px;
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  transition: background-color .2s ease;
+}
+.hotel-location__map:hover .hotel-location__map-cta { background: var(--green-hover); }
+
+/* hotel-photo location pin (teardrop marker), right — lifts & grows on hover */
+.hotel-location__bubble {
+  position: absolute;
+  top: 50%;
+  right: 28px;
+  transform: translateY(-50%);
+  transition: transform .28s cubic-bezier(.34, 1.56, .64, 1);
+}
+.hotel-location__pin {
+  display: block;
+  width: 58px;
+  height: 58px;
+  padding: 4px;                         /* white frame around the photo */
+  border-radius: 50% 50% 50% 0;         /* teardrop — sharp corner… */
+  transform: rotate(-45deg);            /* …rotated to point straight down */
+  background: var(--white);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+}
+.hotel-location__pin img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  transform: rotate(45deg);             /* counter-rotate so the photo is upright */
+}
+.hotel-location__map:hover .hotel-location__bubble {
+  transform: translateY(calc(-50% - 6px)) scale(1.08);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hotel-location__bubble { transition: none; }
+}
+
+.hotel-location__disclaimer {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--icon);
+  text-align: right;
+}
+
+/* ---- attractions ---- */
+.hotel-location__attractions { margin-top: 22px; }
+.hotel-location__attractions-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hairline);
+}
+.hotel-location__attractions-title {
+  font-size: 18px;
+  font-weight: var(--fw-bold);
+  color: var(--text);
+}
+.hotel-location__attractions-unit {
+  font-size: 15px;
+  color: var(--icon);
+}
+
+.hotel-location__list { list-style: none; margin: 0; padding: 0; }
+.hotel-location__place {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.hotel-location__place-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;                 /* green pin (right, RTL start) + name */
+  min-width: 0;
+  font-size: 16px;
+  color: var(--text);
+}
+.hotel-location__place-pin { flex: none; width: 13px; height: 14px; color: var(--color-2); }
+.hotel-location__place-dist {
+  flex: none;
+  font-size: 16px;
+  color: var(--light-text);
+  white-space: nowrap;
+}
+/* collapsed: first 6 places only */
+.hotel-location__list--clamped .hotel-location__place:nth-child(n + 7) { display: none; }
+
+/* link pair: "+ עוד מקומות" (right, expands) · "לצפייה בכל המקומות על מפה" (left) */
+.hotel-location__links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+.hotel-location__more,
+.hotel-location__all-map {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 16px;
+  font-weight: var(--fw-medium);
+  color: var(--link);
+  cursor: pointer;
+  text-underline-offset: 3px;
+}
+.hotel-location__more:hover,
+.hotel-location__all-map:hover { text-decoration: underline; }
+
+/* ---- mobile ---- */
+@media (max-width: 768px) {
+  .hotel-location { order: 7; }
+  .hotel-location__inner { flex-direction: column; gap: 14px; padding-block: 20px; }
+  .hotel-location__divider { display: none; }
+  .hotel-location__title { flex: none; width: 100%; font-size: 18px; font-weight: var(--fw-semibold); }
+
+  .hotel-location__card { padding: 16px; border-radius: 14px; }
+  .hotel-location__address { font-size: 15px; margin-bottom: 12px; }
+
+  .hotel-location__map { height: 80px; }
+  .hotel-location__map-cta { left: 18px; padding: 8px 15px; font-size: 14px; }  /* gap from the image edge */
+  .hotel-location__bubble { right: 18px; }
+  .hotel-location__pin { width: 50px; height: 50px; padding: 3px; }
+
+  /* disclaimer: tighter lines, one px smaller, closer to the map */
+  .hotel-location__disclaimer { margin-top: 8px; font-size: 12px; line-height: 1.3; }
+
+  .hotel-location__attractions { margin-top: 16px; }
+  .hotel-location__attractions-title { font-size: 16px; }
+  .hotel-location__attractions-unit,
+  .hotel-location__place-name,
+  .hotel-location__place-dist { font-size: 14px; }
+
+  /* denser rows; show max 5 places when collapsed */
+  .hotel-location__place { padding: 6px 0; }
+  .hotel-location__list--clamped .hotel-location__place:nth-child(n + 6) { display: none; }
+
+  .hotel-location__links { flex-wrap: wrap; gap: 8px 16px; margin-top: 11px; }
+  .hotel-location__more,
+  .hotel-location__all-map { font-size: 14px; }
+}

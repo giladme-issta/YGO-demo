@@ -1,0 +1,117 @@
+/* price-pill — the gradient discount pill. Two sizes share one look:
+     .price-pill   → the big pill (discounted price + strikethrough + Bookit logo)
+     .member-pill  → a compact "לחברי Bookit ‹price›" strip shown UNDER a plain
+                     black price to say what the room costs for members. */
+.price-pill {
+  display: inline-flex;
+  align-items: center;
+  direction: ltr;
+  gap: 6px;
+  max-width: 100%;
+  padding: 3px 6px 4px 6px;
+  border-radius: 12px;
+  background: var(--pill-grad);
+}
+.price-pill__amount {
+  font-weight: var(--fw-medium);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--color);
+  white-space: nowrap;
+  direction: ltr;
+}
+.price-pill__amount .currency {
+  font-weight: var(--fw-medium);
+}
+.price-pill__original {
+  font-weight: var(--fw-regular);
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--text);
+  text-decoration: line-through;
+  white-space: nowrap;
+  direction: ltr;
+}
+.price-pill__sep {
+  flex: none;
+  width: 1px;
+  height: 18px;
+  background: var(--pill-sep);
+}
+.price-pill__logo {
+  flex: none;
+  width: 44px;
+  height: 12px;
+  object-fit: contain;
+}
+
+/* Compact member strip — design: 17px tall, 8.5px radius, smaller type. */
+.member-pill {
+  display: inline-flex;
+  align-items: center;
+  direction: ltr;
+  gap: 4px;
+  height: 17px;
+  padding: 0 6px;
+  border-radius: 8.5px;
+  background: var(--pill-grad);
+}
+.member-pill__amount {
+  font-weight: var(--fw-bold);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--color);
+  white-space: nowrap;
+  direction: ltr;
+}
+.member-pill__amount .currency {
+  font-weight: var(--fw-bold);
+}
+.member-pill__logo {
+  flex: none;
+  width: 33px;
+  height: 9px;
+  object-fit: contain;
+}
+.member-pill__label {
+  font-weight: var(--fw-regular);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* ---------- Medium tier 1 (1001–1339px) ---------- */
+@media (min-width: 1001px) and (max-width: 1339px) {
+  .price-pill__amount { font-size: 18px; }
+  .price-pill__original { font-size: 15px; }
+}
+
+/* ---------- Medium tier 2 (1001–1259px) ---------- */
+@media (min-width: 1001px) and (max-width: 1259px) {
+  .price-pill__amount { font-size: 17px; }
+  .price-pill__original { font-size: 14px; }
+}
+
+/* ---------- Mobile (max 1000px): more compact ---------- */
+@media (max-width: 1000px) {
+  .price-pill {
+    gap: 5px;
+    padding: 2px 5px;
+    border-radius: 10px;
+  }
+  .price-pill__amount {
+    font-size: 16px;
+    font-weight: var(--fw-medium);
+  }
+  .price-pill__original {
+    font-size: 13px;
+  }
+  .price-pill__sep {
+    height: 14px;
+  }
+  .price-pill__logo {
+    width: 39.83px;
+    height: 10.86px;
+  }
+}

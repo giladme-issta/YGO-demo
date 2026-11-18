@@ -1,0 +1,67 @@
+/* room-layout — the module frame: a two-column row (sidebar + main) that
+   reflows to a single stacked column on mobile. Owns only the outer layout;
+   the sidebar, filters and cards style themselves. */
+.room-selection {
+  direction: rtl;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 40px;
+  max-width: 1264px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  font-family: var(--font);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+.room-selection img { display: block; }
+
+/* ---------- Main column (filters + room list) ---------- */
+.room-selection__main {
+  position: relative;   /* anchors the vertical divider (below) */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* vertical hairline separating the sidebar/title (right) from the content
+   (left). Drawn by the frame itself so every host — the module, the multi-room
+   variant and the embedded hotel page — gets it from this one file. On the full
+   hotel page it lines up with the other section dividers (advantages · about ·
+   facilities · location …), which sit at --info-aside + --info-gap from the
+   content edge, so every vertical rule on the page shares one column. It spans
+   the full height of the main column, so it grows/shrinks with the number of
+   rooms. Desktop only. */
+.room-selection__main::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -44px;              /* aligns with the page's info-section dividers */
+  width: 1px;
+  background: var(--hairline);
+}
+
+.room-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ============================================================
+   Mobile (Figma 4-5125): single stacked column. Below 1000px.
+   ============================================================ */
+@media (max-width: 1000px) {
+  .room-selection {
+    flex-direction: column;
+    gap: 16px;
+    padding: 12px;
+  }
+  .room-selection__main {
+    order: 2;
+    width: 100%;
+  }
+  .room-selection__main::before { display: none; }   /* single stacked column — no divider */
+  .room-list {
+    gap: 16px;
+  }
+}

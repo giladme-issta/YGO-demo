@@ -1,0 +1,84 @@
+/* hotel-know — "חשוב לדעת": five rows (green line icon · bold title · sentence).
+   Shared info-section layout (title right · divider · content left), designed
+   from the page's own styles — titles stay on one line, no row separators.
+   Desktop: title + sentence side by side. Mobile: sentence below the title. */
+
+.hotel-know { width: 100%; background: var(--white); }
+
+.hotel-know__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--info-gap);
+  padding-block: 28px;
+}
+.hotel-know__title {
+  flex: 0 0 var(--info-aside);
+  margin: 0;
+  text-align: right;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+  color: var(--text);
+}
+.hotel-know__divider { flex: 0 0 1px; align-self: stretch; background: var(--hairline); }
+
+.hotel-know__list {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;                 /* space between rows — no dashed dividers */
+}
+.hotel-know__item {
+  display: flex;
+  align-items: center;       /* icon centred on the title + sentence */
+  gap: 12px;                 /* icon ↔ text block */
+}
+.hotel-know__icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  color: var(--color-2);     /* green line icons (stroke = currentColor) */
+}
+.hotel-know__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;                  /* title ↔ sentence (tight) */
+}
+.hotel-know__label {
+  flex: none;
+  width: 120px;              /* snug to the longest title (~114px) → sentences sit close */
+  font-size: 17px;
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+  color: var(--text);
+  text-align: right;
+  white-space: nowrap;
+}
+.hotel-know__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--light-text);
+  text-align: right;
+}
+
+/* ---- mobile: sentence stacks under the title; larger, centred icon ---- */
+@media (max-width: 768px) {
+  .hotel-know { order: 10; }
+  .hotel-know__inner { flex-direction: column; gap: 20px; padding-block: 20px; }   /* extra room title → rows */
+  .hotel-know__divider { display: none; }
+  .hotel-know__title { flex: none; width: 100%; font-size: 18px; font-weight: var(--fw-semibold); }
+  .hotel-know__list { gap: 18px; }
+  .hotel-know__item { gap: 12px; align-items: flex-start; }   /* icon to the top, not block-centre */
+  .hotel-know__icon { width: 26px; height: 26px; margin-top: -3px; }   /* centre on the title line */
+  .hotel-know__body { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .hotel-know__label { width: auto; font-size: 16px; line-height: 1.3; }
+  .hotel-know__text { font-size: 14px; line-height: 1.45; }
+}

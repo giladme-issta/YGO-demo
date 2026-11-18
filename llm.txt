@@ -1,0 +1,372 @@
+# YGO Client API
+
+## Docs
+- Root [Overview](https://docs.ygo.ai/overview-370682m0.md): 
+- Root [Core Concepts](https://docs.ygo.ai/core-concepts-370687m0.md): 
+- Root [Authentication](https://docs.ygo.ai/authentication-370683m0.md): 
+- Root [Error Handling & Limits](https://docs.ygo.ai/error-handling-limits-370684m0.md): 
+- Root [Content Enrichment API](https://docs.ygo.ai/content-enrichment-api-612054f0.md): 
+- Root > Content Enrichment API [Vision AI](https://docs.ygo.ai/vision-ai-653855f0.md): 
+- Root [MCP Server](https://docs.ygo.ai/mcp-server-687158f0.md): 
+- Root > MCP Server [Connect](https://docs.ygo.ai/connect-374277m0.md): 
+
+## API Docs
+- Root > Content Enrichment API > Text Generation [Generate text](https://docs.ygo.ai/generate-text-4413468e0.md): Queue an asynchronous text-generation run for a selection of the project's hotels and return the created run object.
+- Root > Content Enrichment API > Text Generation [Preview text](https://docs.ygo.ai/preview-text-4413470e0.md): Synchronously report what a text-generation run would change for a selection of the project's hotels, without generating any text or writing anything. Returns, per hotel, the per-template-and-locale freshness status (missing, fresh, stale), a what-changed summary of refreshed source categories, and the number of texts a fill_missing run would generate.
+- Root > Content Enrichment API > Text Generation [Get text generation status](https://docs.ygo.ai/get-text-generation-status-4413469e0.md): Retrieve the status and progress of a text-generation run by its UUID. Use this to poll the asynchronous run started by generateText until its Status becomes 'complete' or 'failed'. A run that does not belong to the calling project returns 404.
+- Root > Content Enrichment API > Enrichment [Get enriched hotel](https://docs.ygo.ai/get-enriched-hotel-4413471e0.md): Retrieve one fully enriched hotel with its rooms, images, points of interest, factual attributes, check-in and check-out times and per-locale generated texts.
+- Root > Content Enrichment API > Enrichment [List enriched hotels](https://docs.ygo.ai/list-enriched-hotels-4413472e0.md): Return a paginated array of full enriched hotels for the calling project.
+- Root > Content Enrichment API > Enrichment [List enriched hotel summaries](https://docs.ygo.ai/list-enriched-hotel-summaries-4415255e0.md): Return a paginated roster of the calling project's hotels, built and returned synchronously. Only hotels belonging to your project are returned. Rows also carry up to five images, the Summary text per locale and the nearest beach and airport; no rooms, attributes or other texts.
+- Root > Content Enrichment API > Templates [Save text template](https://docs.ygo.ai/save-text-template-4413475e0.md): Create a new text template or update an existing one. The template is matched within the project by its TemplateKey: an existing key updates that template, a new key creates one. The saved template is returned.
+- Root > Content Enrichment API > Templates [List text templates](https://docs.ygo.ai/list-text-templates-4413474e0.md): Return the text templates configured for the calling project, ordered by template key.
+- Root > Content Enrichment API > Tags [Save tag](https://docs.ygo.ai/save-tag-4415256e0.md): Upsert a project tag. Omit TagID to create a new tag or supply an existing TagID to rename it. The name must be unique within the project (case-insensitive); a duplicate returns 409, and renaming a tag id not in the project returns 404.
+- Root > Content Enrichment API > Tags [List tags](https://docs.ygo.ai/list-tags-4415257e0.md): Return the calling project's internal tags as a plain array under Data (not paginated). The request body is empty.
+- Root > Content Enrichment API > Tags [Delete tag](https://docs.ygo.ai/delete-tag-4415258e0.md): Delete a project tag by its UUID. The tag's hotel links cascade away with it; the hotels and their membership are untouched. A tag not in the project returns 404.
+- Root > Content Enrichment API > Tags [Add tag to hotels (bulk)](https://docs.ygo.ai/add-tag-to-hotels-bulk-4415259e0.md): Add a project tag to up to 1000 hotels at once. Tag ownership is checked once (404 if foreign). Each hotel id passes the project-membership escalation guard: a live member is 'applied', a non-member is 'skipped_not_member' (never tagged), a malformed id is 'invalid'. Returns the per-hotel outcomes.
+- Root > Content Enrichment API > Tags [Remove tag from hotels (bulk)](https://docs.ygo.ai/remove-tag-from-hotels-bulk-4415260e0.md): Remove a project tag from up to 1000 hotels at once. Tag ownership is checked once (404 if foreign). Each valid hotel id has its link removed ('removed'); a malformed id is 'invalid'. Removal is idempotent (a non-existent link is a no-op) and runs no membership guard, since de-grouping never widens access.
+- Root > Content Enrichment API > Image Pins [Delete hotel image pin](https://docs.ygo.ai/delete-hotel-image-pin-4458239e0.md): Clear the project's pinned first image for a hotel, restoring the default gallery order. Idempotent: clearing a hotel with no pin succeeds. The hotel must be a live member of the calling project (same guard as saveHotelImagePin); a non-member returns 404.
+- Root > Content Enrichment API > Image Pins [Save hotel image pin](https://docs.ygo.ai/save-hotel-image-pin-4458240e0.md): Pin one of a hotel's images as the first image of the served gallery. Upsert: each hotel carries at most one pin per project, and saving replaces any previous pin. The hotel must belong to the calling project (404 otherwise), the image must belong to that hotel (404 otherwise) and be active (400 otherwise), and a room-level image can be pinned only while the hotel has no hotel-level images (400 otherwise).
+- Root > Content Enrichment API > Approval Links [Accept approval image upload](https://docs.ygo.ai/accept-approval-image-upload-4564191e0.md): Accept one pending photo upload: the photo becomes an image of the hotel and is appended to the approval page's photo list, and the upload's feedback item is resolved. The page serves it from the next `get`. When the hotel has no list yet, the photo is appended to the photos the page serves now, which then become its list.
+- Root > Content Enrichment API > Approval Links [List approval image uploads](https://docs.ygo.ai/list-approval-image-uploads-4564192e0.md): List one member hotel's photo uploads in every state but withdrawn (an upload the hotel undid), newest first, at most 200. Each upload carries its photo and its `ID`, the id of its feedback item, so a client can show the photo beside the item that `listHotelFeedback` returns. Pass the `ID` of a `pending` upload as `FeedbackID` to acceptApprovalImageUpload or rejectApprovalImageUpload.
+- Root > Content Enrichment API > Approval Links [Create approval links (bulk)](https://docs.ygo.ai/create-approval-links-bulk-4496974e0.md): Mint one approval link per requested hotel that does not have a live one, and return the link of every requested member hotel in request order. The operation is idempotent: a hotel that already has a live link keeps it, token unchanged, so calling this again never invalidates a link that has already been sent out. A hotel whose link was REVOKED gets a fresh token instead — with `Created` true, its `Status` back to `waiting_for_hotel` (a new link means "look at this again"), and `ApprovedAt`, `ApprovedBy` and `ApprovedTextGeneratedAt` kept as the record of what was approved — which makes this the way back to a live link after a revoke. `Created` distinguishes minted from untouched per row. Hotel ids that are not live members of the project are skipped and echoed in `NotInProjectIDs`.
+- Root > Content Enrichment API > Approval Links [Export approved hotel text with image URLs](https://docs.ygo.ai/export-approved-hotel-text-with-image-urls-4496975e0.md): Download one hotel's approved catalog text, followed by the image URLs its approval page serves, as a `.txt` file. The response body is the file itself (`text/plain; charset=utf-8`), not a JSON envelope, and the `Content-Disposition` header carries one ASCII name: hotel slug, locale, approval date. The file contains the generated texts the hotel's approval page served in the project's default locale, verbatim and in page order, under a framed metadata block that no layout would mistake for copy, then the served image URLs in the approval page's order in a block of their own. A hotel that has not approved is refused with 409 `NOT_APPROVED`, and so is a hotel whose text was regenerated after its approval: what leaves is byte for byte the approved text, never the live text. When the project's `Content.ApprovalTextKeys` setting lists template keys, only texts with a listed key are exported, rule texts included. The call writes nothing to the approval tables and, like the approval page, neither reads nor writes the shared enriched-hotel cache. 
+- Root > Content Enrichment API > Approval Links [Reject approval image upload](https://docs.ygo.ai/reject-approval-image-upload-4564193e0.md): Reject one pending photo upload: the upload's feedback item is rejected and the photo is never served. The page's photo list is not touched and the stored file is kept. The upload is checked when it is locked: one whose stored photo record is incomplete and cannot be read answers 400 `INVALID_STATUS_TRANSITION` (contact YGO support), and then an upload that was already decided answers 400 `INVALID_STATUS_TRANSITION`. Works after the hotel approved. The reviewer is recorded as the user's ID, or `project:<project id>` for a project API key.
+- Root > Content Enrichment API > Approval Links [List approval links](https://docs.ygo.ai/list-approval-links-4496976e0.md): List the calling project's approval links with their status, approver and last-opened time — the read behind an approval column in a hotel list or an approval panel on a hotel page. Pass `HotelIDs` to restrict the list to specific hotels, or omit it to page through every link of the project. Results are ordered by creation time then hotel id. Hotel ids that are not live members of the project are skipped and echoed in `NotInProjectIDs`. A link that was revoked before its hotel ever approved is excluded, from `Data` and from `Pagination.Total` alike; a link revoked after the hotel approved stays listed, carrying `RevokedAt` and no `Token`.
+- Root > Content Enrichment API > Approval Links [Revoke approval link](https://docs.ygo.ai/revoke-approval-link-4496977e0.md): Revoke one hotel's approval link by stamping `RevokedAt`, and change nothing else. The token stops resolving immediately — the public approval endpoints answer the same 404 they give an unknown token — `rotateApprovalLink` answers 404, and a hotel that had not approved leaves `listApprovals`. The hotel's approval survives: status, approval timestamps, approver, contacts and feedback are all kept, and `exportApprovedHotelText` keeps working. Call `createApprovalLinks` to mint a fresh link for the hotel afterwards. Repeating the call is safe: the row comes back with its original `RevokedAt`.
+- Root > Content Enrichment API > Approval Links [Rotate approval link](https://docs.ygo.ai/rotate-approval-link-4496978e0.md): Replace one hotel's link token. The old token stops resolving immediately, so this is how a leaked or mis-sent link is invalidated. Everything else survives: the approval status, the approval timestamps and approver, the feedback history and the hotel's identified contacts, whose secrets keep working on the new token. Send the new link to the hotel afterwards — the old one is dead. A link that was revoked cannot be rotated back to life: it answers 404 `Approval link not found`, and `createApprovalLinks` is the way to mint a fresh one.
+- Root > Content Enrichment API > Vision AI [Ingest vision images](https://docs.ygo.ai/ingest-vision-images-4496980e0.md): Submit image URLs for analysis; each gets an image ID immediately.
+- Root > Content Enrichment API > Vision AI [Get vision images](https://docs.ygo.ai/get-vision-images-4496979e0.md): Fetch the analysis state of submitted images by image ID, with the enriched image object for every image that is complete.
+- Root > Content Enrichment API > Vision AI [List vision images](https://docs.ygo.ai/list-vision-images-4496981e0.md): List this project's submitted images, newest first, with the enriched image object for every image that is complete.
+- Root > Content Enrichment API > Vision AI [Delete vision images](https://docs.ygo.ai/delete-vision-images-4564194e0.md): Delete images this project submitted, by image ID.
+- Root > Content Enrichment API > Hotel Stars [Save hotel stars](https://docs.ygo.ai/save-hotel-stars-4564196e0.md): Set your project's own star grade for one hotel. Upsert: each hotel carries at most one grade per project, and saving replaces any previous grade. This project's getEnrichedHotel, listEnrichedHotels and listEnrichedHotelSummaries then serve it as StarsMap.project and StarsMap.default, and as the top-level Stars (normally on the next read, at the latest about a minute later); no other project sees the grade. The hotel must belong to the calling project (404 otherwise), Stars must be greater than 0 and at most 10 with at most one decimal, and Superior must not be sent: a project grade has no Superior (400 otherwise).
+- Root > Content Enrichment API > Hotel Stars [Delete hotel stars](https://docs.ygo.ai/delete-hotel-stars-4564195e0.md): Remove your project's own star grade for one hotel; StarsMap.project disappears and StarsMap.default, with the top-level Stars, falls back to the next source (normally on the next read, at the latest about a minute later). Idempotent: clearing a hotel with no grade succeeds. The hotel must belong to the calling project (same guard as saveHotelStars); a hotel outside the project returns 404.
+- Root > Content Enrichment API > Settings [Get content settings](https://docs.ygo.ai/get-content-settings-4413473e0.md): Return the calling project's enabled output locales and default locale. When the project has no content settings configured, the response carries an empty locales list and an empty default locale.
+
+## Schemas
+- Root [GetEnrichedHotelRequest](https://docs.ygo.ai/getenrichedhotelrequest-899076d0.md): 
+- Root [GenerateTextRequest](https://docs.ygo.ai/generatetextrequest-900383d0.md): 
+- Root [GetTextGenerationStatusRequest](https://docs.ygo.ai/gettextgenerationstatusrequest-900387d0.md): 
+- Root [PreviewTextRequest](https://docs.ygo.ai/previewtextrequest-900390d0.md): 
+- Root [GetEnrichedHotelsByTagRequest](https://docs.ygo.ai/getenrichedhotelsbytagrequest-900396d0.md): 
+- Root [ListEnrichedHotelsRequest](https://docs.ygo.ai/listenrichedhotelsrequest-900400d0.md): 
+- Root [GetContentSettingsRequest](https://docs.ygo.ai/getcontentsettingsrequest-900404d0.md): 
+- Root [ListTextTemplatesRequest](https://docs.ygo.ai/listtexttemplatesrequest-900407d0.md): 
+- Root [SaveTextTemplateRequest](https://docs.ygo.ai/savetexttemplaterequest-900411d0.md): 
+- Root [generateText_GenerateTextRequest](https://docs.ygo.ai/generatetext-generatetextrequest-900592d0.md): 
+- Root [createApprovalLinks_CreateApprovalLinksRequest](https://docs.ygo.ai/createapprovallinks-createapprovallinksrequest-984206d0.md): 
+- Root [acceptApprovalImageUpload_AcceptApprovalImageUploadRequest](https://docs.ygo.ai/acceptapprovalimageupload-acceptapprovalimageuploadrequest-1032063d0.md): 
+- Root [GetEnrichedHotelResponse](https://docs.ygo.ai/getenrichedhotelresponse-899077d0.md): 
+- Root [GenerateTextResponse](https://docs.ygo.ai/generatetextresponse-900384d0.md): 
+- Root [GetTextGenerationStatusResponse](https://docs.ygo.ai/gettextgenerationstatusresponse-900388d0.md): 
+- Root [PreviewTextResponse](https://docs.ygo.ai/previewtextresponse-900391d0.md): 
+- Root [GetEnrichedHotelsByTagResponse](https://docs.ygo.ai/getenrichedhotelsbytagresponse-900397d0.md): 
+- Root [ListEnrichedHotelsResponse](https://docs.ygo.ai/listenrichedhotelsresponse-900401d0.md): 
+- Root [GetContentSettingsResponse](https://docs.ygo.ai/getcontentsettingsresponse-900405d0.md): 
+- Root [ListTextTemplatesResponse](https://docs.ygo.ai/listtexttemplatesresponse-900408d0.md): 
+- Root [SaveTextTemplateResponse](https://docs.ygo.ai/savetexttemplateresponse-900412d0.md): 
+- Root [generateText_GenerateTextResponse](https://docs.ygo.ai/generatetext-generatetextresponse-900593d0.md): 
+- Root [createApprovalLinks_CreateApprovalLinksResponse](https://docs.ygo.ai/createapprovallinks-createapprovallinksresponse-984207d0.md): 
+- Root [acceptApprovalImageUpload_AcceptApprovalImageUploadResponse](https://docs.ygo.ai/acceptapprovalimageupload-acceptapprovalimageuploadresponse-1032064d0.md): 
+- Root [TextGenerationRun](https://docs.ygo.ai/textgenerationrun-900385d0.md): 
+- Root [TextGenerationStatus](https://docs.ygo.ai/textgenerationstatus-900389d0.md): 
+- Root [PreviewResult](https://docs.ygo.ai/previewresult-900392d0.md): 
+- Root [EnrichedHotelsByTag](https://docs.ygo.ai/enrichedhotelsbytag-900398d0.md): 
+- Root [Pagination](https://docs.ygo.ai/pagination-900402d0.md): 
+- Root [ContentSettings](https://docs.ygo.ai/contentsettings-900406d0.md): 
+- Root [TextTemplate](https://docs.ygo.ai/texttemplate-900409d0.md): 
+- Root [generateText_TextGenerationRun](https://docs.ygo.ai/generatetext-textgenerationrun-900594d0.md): 
+- Root [createApprovalLinks_ApprovalLink](https://docs.ygo.ai/createapprovallinks-approvallink-984208d0.md): 
+- Root [acceptApprovalImageUpload_ApprovalImageUpload](https://docs.ygo.ai/acceptapprovalimageupload-approvalimageupload-1032065d0.md): 
+- Root [ErrorResponse](https://docs.ygo.ai/errorresponse-899091d0.md): 
+- Root [RunProgress](https://docs.ygo.ai/runprogress-900386d0.md): 
+- Root [PreviewHotel](https://docs.ygo.ai/previewhotel-900393d0.md): 
+- Root [TagSummary](https://docs.ygo.ai/tagsummary-900399d0.md): 
+- Root [EnrichedHotelListItem](https://docs.ygo.ai/enrichedhotellistitem-900403d0.md): 
+- Root [generateText_RunProgress](https://docs.ygo.ai/generatetext-runprogress-900595d0.md): 
+- Root [createApprovalLinks_ApprovalApprover](https://docs.ygo.ai/createapprovallinks-approvalapprover-984209d0.md): 
+- Root [acceptApprovalImageUpload_ErrorResponse](https://docs.ygo.ai/acceptapprovalimageupload-errorresponse-1032066d0.md): 
+- Root [getEnrichedHotel_StarsMap](https://docs.ygo.ai/getenrichedhotel-starsmap-1032082d0.md): 
+- Root [EnrichedHotel](https://docs.ygo.ai/enrichedhotel-899078d0.md): 
+- Root [ErrorDetail](https://docs.ygo.ai/errordetail-899092d0.md): 
+- Root [PreviewCell](https://docs.ygo.ai/previewcell-900394d0.md): 
+- Root [TemplateUsageStats](https://docs.ygo.ai/templateusagestats-900410d0.md): 
+- Root [generateText_ErrorResponse](https://docs.ygo.ai/generatetext-errorresponse-900596d0.md): 
+- Root [createApprovalLinks_ErrorResponse](https://docs.ygo.ai/createapprovallinks-errorresponse-984210d0.md): 
+- Root [acceptApprovalImageUpload_ErrorDetail](https://docs.ygo.ai/acceptapprovalimageupload-errordetail-1032067d0.md): 
+- Root [Location](https://docs.ygo.ai/location-899079d0.md): 
+- Root [FieldError](https://docs.ygo.ai/fielderror-899093d0.md): 
+- Root [PreviewChange](https://docs.ygo.ai/previewchange-900395d0.md): 
+- Root [generateText_ErrorDetail](https://docs.ygo.ai/generatetext-errordetail-900597d0.md): 
+- Root [getEnrichedHotel_ProjectTagSummary](https://docs.ygo.ai/getenrichedhotel-projecttagsummary-903335d0.md): 
+- Root [createApprovalLinks_ErrorDetail](https://docs.ygo.ai/createapprovallinks-errordetail-984211d0.md): 
+- Root [acceptApprovalImageUpload_FieldError](https://docs.ygo.ai/acceptapprovalimageupload-fielderror-1032068d0.md): 
+- Root [Address](https://docs.ygo.ai/address-899080d0.md): 
+- Root [createApprovalLinks_FieldError](https://docs.ygo.ai/createapprovallinks-fielderror-984212d0.md): 
+- Root [FactualAttribute](https://docs.ygo.ai/factualattribute-899081d0.md): 
+- Root [getTextGenerationStatus_GetTextGenerationStatusRequest](https://docs.ygo.ai/gettextgenerationstatus-gettextgenerationstatusrequest-900599d0.md): 
+- Root [getEnrichedHotel_Address](https://docs.ygo.ai/getenrichedhotel-address-900619d0.md): 
+- Root [exportApprovedHotelText_ExportApprovedHotelTextRequest](https://docs.ygo.ai/exportapprovedhoteltext-exportapprovedhoteltextrequest-984213d0.md): 
+- Root [FactualInstance](https://docs.ygo.ai/factualinstance-899082d0.md): 
+- Root [getTextGenerationStatus_GetTextGenerationStatusResponse](https://docs.ygo.ai/gettextgenerationstatus-gettextgenerationstatusresponse-900600d0.md): 
+- Root [POI](https://docs.ygo.ai/poi-899083d0.md): 
+- Root [getTextGenerationStatus_TextGenerationStatus](https://docs.ygo.ai/gettextgenerationstatus-textgenerationstatus-900601d0.md): 
+- Root [exportApprovedHotelText_ErrorResponse](https://docs.ygo.ai/exportapprovedhoteltext-errorresponse-984215d0.md): 
+- Root [listApprovalImageUploads_ApprovalImageUpload](https://docs.ygo.ai/listapprovalimageuploads-approvalimageupload-1032072d0.md): 
+- Root [CheckIn](https://docs.ygo.ai/checkin-899084d0.md): 
+- Root [getTextGenerationStatus_RunProgress](https://docs.ygo.ai/gettextgenerationstatus-runprogress-900602d0.md): 
+- Root [exportApprovedHotelText_ErrorDetail](https://docs.ygo.ai/exportapprovedhoteltext-errordetail-984216d0.md): 
+- Root [CheckOut](https://docs.ygo.ai/checkout-899085d0.md): 
+- Root [getTextGenerationStatus_ErrorResponse](https://docs.ygo.ai/gettextgenerationstatus-errorresponse-900603d0.md): 
+- Root [exportApprovedHotelText_FieldError](https://docs.ygo.ai/exportapprovedhoteltext-fielderror-984217d0.md): 
+- Root [GeneratedTexts](https://docs.ygo.ai/generatedtexts-899086d0.md): 
+- Root [getTextGenerationStatus_ErrorDetail](https://docs.ygo.ai/gettextgenerationstatus-errordetail-900604d0.md): 
+- Root [listApprovals_ListApprovalsRequest](https://docs.ygo.ai/listapprovals-listapprovalsrequest-984218d0.md): 
+- Root [GeneratedTextDetail](https://docs.ygo.ai/generatedtextdetail-899087d0.md): 
+- Root [listApprovals_ListApprovalsResponse](https://docs.ygo.ai/listapprovals-listapprovalsresponse-984219d0.md): 
+- Root [Image](https://docs.ygo.ai/image-899088d0.md): 
+- Root [previewText_PreviewTextRequest](https://docs.ygo.ai/previewtext-previewtextrequest-900606d0.md): 
+- Root [exportApprovedHotelText_ApprovedHotelTextFile](https://docs.ygo.ai/exportapprovedhoteltext-approvedhoteltextfile-984214d0.md): 
+- Root [listApprovals_Pagination](https://docs.ygo.ai/listapprovals-pagination-984220d0.md): 
+- Root [EnrichedRoom](https://docs.ygo.ai/enrichedroom-899089d0.md): 
+- Root [previewText_PreviewTextResponse](https://docs.ygo.ai/previewtext-previewtextresponse-900607d0.md): 
+- Root [getEnrichedHotel_Compliance](https://docs.ygo.ai/getenrichedhotel-compliance-936256d0.md): 
+- Root [listApprovals_ApprovalLink](https://docs.ygo.ai/listapprovals-approvallink-984221d0.md): 
+- Root [rejectApprovalImageUpload_ApprovalImageUpload](https://docs.ygo.ai/rejectapprovalimageupload-approvalimageupload-1032078d0.md): 
+- Root [Bedding](https://docs.ygo.ai/bedding-899090d0.md): 
+- Root [previewText_PreviewResult](https://docs.ygo.ai/previewtext-previewresult-900608d0.md): 
+- Root [listApprovals_ApprovalApprover](https://docs.ygo.ai/listapprovals-approvalapprover-984222d0.md): 
+- Root [previewText_PreviewHotel](https://docs.ygo.ai/previewtext-previewhotel-900609d0.md): 
+- Root [listApprovals_ErrorResponse](https://docs.ygo.ai/listapprovals-errorresponse-984223d0.md): 
+- Root [listApprovals_ErrorDetail](https://docs.ygo.ai/listapprovals-errordetail-984224d0.md): 
+- Root [listApprovalImageUploads_ListApprovalImageUploadsRequest](https://docs.ygo.ai/listapprovalimageuploads-listapprovalimageuploadsrequest-1032069d0.md): 
+- Root [previewText_PreviewChange](https://docs.ygo.ai/previewtext-previewchange-900611d0.md): 
+- Root [listApprovals_FieldError](https://docs.ygo.ai/listapprovals-fielderror-984225d0.md): 
+- Root [listApprovalImageUploads_ListApprovalImageUploadsResponse](https://docs.ygo.ai/listapprovalimageuploads-listapprovalimageuploadsresponse-1032070d0.md): 
+- Root [previewText_ErrorResponse](https://docs.ygo.ai/previewtext-errorresponse-900612d0.md): 
+- Root [revokeApprovalLink_RevokeApprovalLinkRequest](https://docs.ygo.ai/revokeapprovallink-revokeapprovallinkrequest-984226d0.md): 
+- Root [listApprovalImageUploads_ApprovalImageUploadList](https://docs.ygo.ai/listapprovalimageuploads-approvalimageuploadlist-1032071d0.md): 
+- Root [previewText_ErrorDetail](https://docs.ygo.ai/previewtext-errordetail-900613d0.md): 
+- Root [revokeApprovalLink_RevokeApprovalLinkResponse](https://docs.ygo.ai/revokeapprovallink-revokeapprovallinkresponse-984227d0.md): 
+- Root [revokeApprovalLink_ApprovalLink](https://docs.ygo.ai/revokeapprovallink-approvallink-984228d0.md): 
+- Root [listApprovalImageUploads_ErrorResponse](https://docs.ygo.ai/listapprovalimageuploads-errorresponse-1032073d0.md): 
+- Root [previewText_PreviewText](https://docs.ygo.ai/previewtext-previewtext-900610d0.md): 
+- Root [revokeApprovalLink_ApprovalApprover](https://docs.ygo.ai/revokeapprovallink-approvalapprover-984229d0.md): 
+- Root [listApprovalImageUploads_ErrorDetail](https://docs.ygo.ai/listapprovalimageuploads-errordetail-1032074d0.md): 
+- Root [getEnrichedHotel_GetEnrichedHotelResponse](https://docs.ygo.ai/getenrichedhotel-getenrichedhotelresponse-900616d0.md): 
+- Root [revokeApprovalLink_ErrorResponse](https://docs.ygo.ai/revokeapprovallink-errorresponse-984230d0.md): 
+- Root [listApprovalImageUploads_FieldError](https://docs.ygo.ai/listapprovalimageuploads-fielderror-1032075d0.md): 
+- Root [revokeApprovalLink_ErrorDetail](https://docs.ygo.ai/revokeapprovallink-errordetail-984231d0.md): 
+- Root [revokeApprovalLink_FieldError](https://docs.ygo.ai/revokeapprovallink-fielderror-984232d0.md): 
+- Root [getEnrichedHotel_Location](https://docs.ygo.ai/getenrichedhotel-location-900618d0.md): 
+- Root [rotateApprovalLink_RotateApprovalLinkRequest](https://docs.ygo.ai/rotateapprovallink-rotateapprovallinkrequest-984233d0.md): 
+- Root [getEnrichedHotel_GetEnrichedHotelRequest](https://docs.ygo.ai/getenrichedhotel-getenrichedhotelrequest-900615d0.md): 
+- Root [rotateApprovalLink_RotateApprovalLinkResponse](https://docs.ygo.ai/rotateapprovallink-rotateapprovallinkresponse-984234d0.md): 
+- Root [rotateApprovalLink_ApprovalLink](https://docs.ygo.ai/rotateapprovallink-approvallink-984235d0.md): 
+- Root [getEnrichedHotel_EnrichedHotel](https://docs.ygo.ai/getenrichedhotel-enrichedhotel-900617d0.md): 
+- Root [rotateApprovalLink_ApprovalApprover](https://docs.ygo.ai/rotateapprovallink-approvalapprover-984236d0.md): 
+- Root [listEnrichedHotelSummaries_ProjectTagSummary](https://docs.ygo.ai/listenrichedhotelsummaries-projecttagsummary-1036776d0.md): 
+- Root [rotateApprovalLink_ErrorResponse](https://docs.ygo.ai/rotateapprovallink-errorresponse-984237d0.md): 
+- Root [getEnrichedHotel_CheckIn](https://docs.ygo.ai/getenrichedhotel-checkin-900623d0.md): 
+- Root [rotateApprovalLink_ErrorDetail](https://docs.ygo.ai/rotateapprovallink-errordetail-984238d0.md): 
+- Root [getEnrichedHotel_CheckOut](https://docs.ygo.ai/getenrichedhotel-checkout-900624d0.md): 
+- Root [rotateApprovalLink_FieldError](https://docs.ygo.ai/rotateapprovallink-fielderror-984239d0.md): 
+- Root [rejectApprovalImageUpload_RejectApprovalImageUploadRequest](https://docs.ygo.ai/rejectapprovalimageupload-rejectapprovalimageuploadrequest-1032076d0.md): 
+- Root [getEnrichedHotel_GeneratedTexts](https://docs.ygo.ai/getenrichedhotel-generatedtexts-900625d0.md): 
+- Root [rejectApprovalImageUpload_RejectApprovalImageUploadResponse](https://docs.ygo.ai/rejectapprovalimageupload-rejectapprovalimageuploadresponse-1032077d0.md): 
+- Root [getEnrichedHotel_GeneratedTextDetail](https://docs.ygo.ai/getenrichedhotel-generatedtextdetail-900626d0.md): 
+- Root [rejectApprovalImageUpload_ErrorResponse](https://docs.ygo.ai/rejectapprovalimageupload-errorresponse-1032079d0.md): 
+- Root [rejectApprovalImageUpload_ErrorDetail](https://docs.ygo.ai/rejectapprovalimageupload-errordetail-1032080d0.md): 
+- Root [getEnrichedHotel_ProviderVariant](https://docs.ygo.ai/getenrichedhotel-providervariant-936257d0.md): 
+- Root [rejectApprovalImageUpload_FieldError](https://docs.ygo.ai/rejectapprovalimageupload-fielderror-1032081d0.md): 
+- Root [generateText_FieldError](https://docs.ygo.ai/generatetext-fielderror-900598d0.md): 
+- Root [getEnrichedHotel_ErrorResponse](https://docs.ygo.ai/getenrichedhotel-errorresponse-900630d0.md): 
+- Root [getEnrichedHotel_ErrorDetail](https://docs.ygo.ai/getenrichedhotel-errordetail-900631d0.md): 
+- Root [listEnrichedHotels_ProjectTagSummary](https://docs.ygo.ai/listenrichedhotels-projecttagsummary-903315d0.md): 
+- Root [getEnrichedHotel_GuestRating](https://docs.ygo.ai/getenrichedhotel-guestrating-1038514d0.md): 
+- Root [listEnrichedHotels_EnrichedHotelListItem](https://docs.ygo.ai/listenrichedhotels-enrichedhotellistitem-900636d0.md): 
+- Root [listEnrichedHotels_Address](https://docs.ygo.ai/listenrichedhotels-address-903317d0.md): 
+- Root [getEnrichedHotel_GuestRatingSubScores](https://docs.ygo.ai/getenrichedhotel-guestratingsubscores-1038515d0.md): 
+- Root [getEnrichedHotel_Bedding](https://docs.ygo.ai/getenrichedhotel-bedding-900629d0.md): 
+- Root [listEnrichedHotelSummaries_ListEnrichedHotelSummariesResponse](https://docs.ygo.ai/listenrichedhotelsummaries-listenrichedhotelsummariesresponse-903329d0.md): 
+- Root [getEnrichedHotel_GuestRatingTexts](https://docs.ygo.ai/getenrichedhotel-guestratingtexts-1038516d0.md): 
+- Root [listEnrichedHotelSummaries_Pagination](https://docs.ygo.ai/listenrichedhotelsummaries-pagination-903330d0.md): 
+- Root [getEnrichedHotel_GuestRatingText](https://docs.ygo.ai/getenrichedhotel-guestratingtext-1038517d0.md): 
+- Root [getTextGenerationStatus_FieldError](https://docs.ygo.ai/gettextgenerationstatus-fielderror-900605d0.md): 
+- Root [listEnrichedHotelSummaries_ErrorResponse](https://docs.ygo.ai/listenrichedhotelsummaries-errorresponse-903332d0.md): 
+- Root [listEnrichedHotelSummaries_ErrorDetail](https://docs.ygo.ai/listenrichedhotelsummaries-errordetail-903333d0.md): 
+- Root [listEnrichedHotels_ListEnrichedHotelsResponse](https://docs.ygo.ai/listenrichedhotels-listenrichedhotelsresponse-900634d0.md): 
+- Root [listEnrichedHotelSummaries_EnrichedHotelSummary](https://docs.ygo.ai/listenrichedhotelsummaries-enrichedhotelsummary-903331d0.md): 
+- Root [listEnrichedHotels_Compliance](https://docs.ygo.ai/listenrichedhotels-compliance-936258d0.md): 
+- Root [listEnrichedHotels_Pagination](https://docs.ygo.ai/listenrichedhotels-pagination-900635d0.md): 
+- Root [previewText_FieldError](https://docs.ygo.ai/previewtext-fielderror-900614d0.md): 
+- Root [listEnrichedHotels_Location](https://docs.ygo.ai/listenrichedhotels-location-903316d0.md): 
+- Root [listEnrichedHotelSummaries_SummaryImage](https://docs.ygo.ai/listenrichedhotelsummaries-summaryimage-1043313d0.md): 
+- Root [listEnrichedHotelSummaries_SummaryGeneratedTexts](https://docs.ygo.ai/listenrichedhotelsummaries-summarygeneratedtexts-1043314d0.md): 
+- Root [listEnrichedHotelSummaries_ListEnrichedHotelSummariesRequest](https://docs.ygo.ai/listenrichedhotelsummaries-listenrichedhotelsummariesrequest-903328d0.md): 
+- Root [listEnrichedHotelSummaries_GeneratedTextDetail](https://docs.ygo.ai/listenrichedhotelsummaries-generatedtextdetail-1043315d0.md): 
+- Root [listEnrichedHotelSummaries_Compliance](https://docs.ygo.ai/listenrichedhotelsummaries-compliance-1043316d0.md): 
+- Root [listEnrichedHotelSummaries_NearestPOI](https://docs.ygo.ai/listenrichedhotelsummaries-nearestpoi-1043317d0.md): 
+- Root [listEnrichedHotels_CheckIn](https://docs.ygo.ai/listenrichedhotels-checkin-903321d0.md): 
+- Root [listEnrichedHotels_CheckOut](https://docs.ygo.ai/listenrichedhotels-checkout-903322d0.md): 
+- Root [listEnrichedHotels_GeneratedTexts](https://docs.ygo.ai/listenrichedhotels-generatedtexts-903323d0.md): 
+- Root [listEnrichedHotels_GeneratedTextDetail](https://docs.ygo.ai/listenrichedhotels-generatedtextdetail-903324d0.md): 
+- Root [getEnrichedHotel_FactualInstance](https://docs.ygo.ai/getenrichedhotel-factualinstance-900621d0.md): 
+- Root [listEnrichedHotels_ProviderVariant](https://docs.ygo.ai/listenrichedhotels-providervariant-936259d0.md): 
+- Root [listEnrichedHotels_ListEnrichedHotelsRequest](https://docs.ygo.ai/listenrichedhotels-listenrichedhotelsrequest-900633d0.md): 
+- Root [listEnrichedHotels_ErrorResponse](https://docs.ygo.ai/listenrichedhotels-errorresponse-900637d0.md): 
+- Root [listEnrichedHotels_ErrorDetail](https://docs.ygo.ai/listenrichedhotels-errordetail-900638d0.md): 
+- Root [listEnrichedHotels_EnrichedHotel](https://docs.ygo.ai/listenrichedhotels-enrichedhotel-903314d0.md): 
+- Root [getEnrichedHotel_DetectionConfidence](https://docs.ygo.ai/getenrichedhotel-detectionconfidence-984240d0.md): 
+- Root [getEnrichedHotel_PresenceDetection](https://docs.ygo.ai/getenrichedhotel-presencedetection-984241d0.md): 
+- Root [deleteHotelImagePin_DeleteHotelImagePinRequest](https://docs.ygo.ai/deletehotelimagepin-deletehotelimagepinrequest-936260d0.md): 
+- Root [deleteHotelImagePin_DeleteHotelImagePinResponse](https://docs.ygo.ai/deletehotelimagepin-deletehotelimagepinresponse-936261d0.md): 
+- Root [getEnrichedHotel_FeatureDetection](https://docs.ygo.ai/getenrichedhotel-featuredetection-984243d0.md): 
+- Root [deleteHotelImagePin_ClearedHotelImagePin](https://docs.ygo.ai/deletehotelimagepin-clearedhotelimagepin-936262d0.md): 
+- Root [getEnrichedHotel_EnrichedRoom](https://docs.ygo.ai/getenrichedhotel-enrichedroom-900628d0.md): 
+- Root [deleteHotelImagePin_ErrorResponse](https://docs.ygo.ai/deletehotelimagepin-errorresponse-936263d0.md): 
+- Root [deleteHotelImagePin_ErrorDetail](https://docs.ygo.ai/deletehotelimagepin-errordetail-936264d0.md): 
+- Root [saveHotelImagePin_SaveHotelImagePinRequest](https://docs.ygo.ai/savehotelimagepin-savehotelimagepinrequest-936266d0.md): 
+- Root [getEnrichedHotel_FieldError](https://docs.ygo.ai/getenrichedhotel-fielderror-900632d0.md): 
+- Root [saveHotelImagePin_SaveHotelImagePinResponse](https://docs.ygo.ai/savehotelimagepin-savehotelimagepinresponse-936267d0.md): 
+- Root [getEnrichedHotel_StarsMapEntry](https://docs.ygo.ai/getenrichedhotel-starsmapentry-1032083d0.md): 
+- Root [saveHotelImagePin_HotelImagePin](https://docs.ygo.ai/savehotelimagepin-hotelimagepin-936268d0.md): 
+- Root [saveHotelImagePin_ErrorResponse](https://docs.ygo.ai/savehotelimagepin-errorresponse-936269d0.md): 
+- Root [saveHotelImagePin_ErrorDetail](https://docs.ygo.ai/savehotelimagepin-errordetail-936270d0.md): 
+- Root [getEnrichedHotel_FactualAttribute](https://docs.ygo.ai/getenrichedhotel-factualattribute-900620d0.md): 
+- Root [listEnrichedHotels_GuestRating](https://docs.ygo.ai/listenrichedhotels-guestrating-1038518d0.md): 
+- Root [getContentSettings_GetContentSettingsRequest](https://docs.ygo.ai/getcontentsettings-getcontentsettingsrequest-900640d0.md): 
+- Root [listEnrichedHotels_GuestRatingSubScores](https://docs.ygo.ai/listenrichedhotels-guestratingsubscores-1038519d0.md): 
+- Root [getEnrichedHotel_POI](https://docs.ygo.ai/getenrichedhotel-poi-900622d0.md): 
+- Root [getContentSettings_GetContentSettingsResponse](https://docs.ygo.ai/getcontentsettings-getcontentsettingsresponse-900641d0.md): 
+- Root [listEnrichedHotels_GuestRatingTexts](https://docs.ygo.ai/listenrichedhotels-guestratingtexts-1038520d0.md): 
+- Root [getContentSettings_ContentSettings](https://docs.ygo.ai/getcontentsettings-contentsettings-900642d0.md): 
+- Root [listEnrichedHotels_GuestRatingText](https://docs.ygo.ai/listenrichedhotels-guestratingtext-1038521d0.md): 
+- Root [getContentSettings_ErrorResponse](https://docs.ygo.ai/getcontentsettings-errorresponse-900643d0.md): 
+- Root [getContentSettings_ErrorDetail](https://docs.ygo.ai/getcontentsettings-errordetail-900644d0.md): 
+- Root [listEnrichedHotels_Bedding](https://docs.ygo.ai/listenrichedhotels-bedding-903327d0.md): 
+- Root [listImageProvidersProject_ListImageProvidersRequest](https://docs.ygo.ai/listimageprovidersproject-listimageprovidersrequest-903451d0.md): 
+- Root [listImageProvidersProject_ListImageProvidersResponse](https://docs.ygo.ai/listimageprovidersproject-listimageprovidersresponse-903452d0.md): 
+- Root [listImageProvidersProject_ImageProviderCatalog](https://docs.ygo.ai/listimageprovidersproject-imageprovidercatalog-903453d0.md): 
+- Root [getEnrichedHotel_TextDetection](https://docs.ygo.ai/getenrichedhotel-textdetection-984242d0.md): 
+- Root [listImageProvidersProject_ErrorResponse](https://docs.ygo.ai/listimageprovidersproject-errorresponse-903455d0.md): 
+- Root [getEnrichedHotel_Image](https://docs.ygo.ai/getenrichedhotel-image-900627d0.md): 
+- Root [listEnrichedHotels_FactualInstance](https://docs.ygo.ai/listenrichedhotels-factualinstance-903319d0.md): 
+- Root [listImageProvidersProject_ErrorDetail](https://docs.ygo.ai/listimageprovidersproject-errordetail-903456d0.md): 
+- Root [addTagToHotels_AddTagToHotelsRequest](https://docs.ygo.ai/addtagtohotels-addtagtohotelsrequest-903354d0.md): 
+- Root [addTagToHotels_AddTagToHotelsResponse](https://docs.ygo.ai/addtagtohotels-addtagtohotelsresponse-903355d0.md): 
+- Root [addTagToHotels_BulkTagResult](https://docs.ygo.ai/addtagtohotels-bulktagresult-903356d0.md): 
+- Root [addTagToHotels_BulkTagHotelResult](https://docs.ygo.ai/addtagtohotels-bulktaghotelresult-903357d0.md): 
+- Root [addTagToHotels_ErrorResponse](https://docs.ygo.ai/addtagtohotels-errorresponse-903358d0.md): 
+- Root [addTagToHotels_ErrorDetail](https://docs.ygo.ai/addtagtohotels-errordetail-903359d0.md): 
+- Root [listEnrichedHotels_DetectionConfidence](https://docs.ygo.ai/listenrichedhotels-detectionconfidence-984244d0.md): 
+- Root [listEnrichedHotels_PresenceDetection](https://docs.ygo.ai/listenrichedhotels-presencedetection-984245d0.md): 
+- Root [deleteTag_DeleteTagRequest](https://docs.ygo.ai/deletetag-deletetagrequest-903348d0.md): 
+- Root [ingestVisionImages_IngestVisionImagesRequest](https://docs.ygo.ai/ingestvisionimages-ingestvisionimagesrequest-984261d0.md): 
+- Root [deleteTag_DeleteTagResponse](https://docs.ygo.ai/deletetag-deletetagresponse-903349d0.md): 
+- Root [listEnrichedHotels_FeatureDetection](https://docs.ygo.ai/listenrichedhotels-featuredetection-984247d0.md): 
+- Root [listEnrichedHotelSummaries_StarsMap](https://docs.ygo.ai/listenrichedhotelsummaries-starsmap-1032084d0.md): 
+- Root [deleteTag_DeletedProjectTag](https://docs.ygo.ai/deletetag-deletedprojecttag-903350d0.md): 
+- Root [listEnrichedHotelSummaries_StarsMapEntry](https://docs.ygo.ai/listenrichedhotelsummaries-starsmapentry-1032085d0.md): 
+- Root [listEnrichedHotels_EnrichedRoom](https://docs.ygo.ai/listenrichedhotels-enrichedroom-903326d0.md): 
+- Root [deleteTag_ErrorResponse](https://docs.ygo.ai/deletetag-errorresponse-903351d0.md): 
+- Root [deleteTag_ErrorDetail](https://docs.ygo.ai/deletetag-errordetail-903352d0.md): 
+- Root [listEnrichedHotelSummaries_FieldError](https://docs.ygo.ai/listenrichedhotelsummaries-fielderror-903334d0.md): 
+- Root [listTags_ListTagsRequest](https://docs.ygo.ai/listtags-listtagsrequest-903342d0.md): 
+- Root [listEnrichedHotels_FieldError](https://docs.ygo.ai/listenrichedhotels-fielderror-900639d0.md): 
+- Root [listTags_ListTagsResponse](https://docs.ygo.ai/listtags-listtagsresponse-903343d0.md): 
+- Root [listTags_ProjectTag](https://docs.ygo.ai/listtags-projecttag-903344d0.md): 
+- Root [listTags_ErrorResponse](https://docs.ygo.ai/listtags-errorresponse-903345d0.md): 
+- Root [listTags_ErrorDetail](https://docs.ygo.ai/listtags-errordetail-903346d0.md): 
+- Root [listEnrichedHotels_StarsMap](https://docs.ygo.ai/listenrichedhotels-starsmap-1032086d0.md): 
+- Root [listEnrichedHotels_StarsMapEntry](https://docs.ygo.ai/listenrichedhotels-starsmapentry-1032087d0.md): 
+- Root [removeTagFromHotels_RemoveTagFromHotelsRequest](https://docs.ygo.ai/removetagfromhotels-removetagfromhotelsrequest-903361d0.md): 
+- Root [removeTagFromHotels_RemoveTagFromHotelsResponse](https://docs.ygo.ai/removetagfromhotels-removetagfromhotelsresponse-903362d0.md): 
+- Root [deleteHotelImagePin_FieldError](https://docs.ygo.ai/deletehotelimagepin-fielderror-936265d0.md): 
+- Root [removeTagFromHotels_BulkTagResult](https://docs.ygo.ai/removetagfromhotels-bulktagresult-903363d0.md): 
+- Root [listEnrichedHotels_FactualAttribute](https://docs.ygo.ai/listenrichedhotels-factualattribute-903318d0.md): 
+- Root [removeTagFromHotels_BulkTagHotelResult](https://docs.ygo.ai/removetagfromhotels-bulktaghotelresult-903364d0.md): 
+- Root [removeTagFromHotels_ErrorResponse](https://docs.ygo.ai/removetagfromhotels-errorresponse-903365d0.md): 
+- Root [listEnrichedHotels_POI](https://docs.ygo.ai/listenrichedhotels-poi-903320d0.md): 
+- Root [removeTagFromHotels_ErrorDetail](https://docs.ygo.ai/removetagfromhotels-errordetail-903366d0.md): 
+- Root [saveTag_SaveTagRequest](https://docs.ygo.ai/savetag-savetagrequest-903336d0.md): 
+- Root [saveHotelImagePin_FieldError](https://docs.ygo.ai/savehotelimagepin-fielderror-936271d0.md): 
+- Root [saveTag_SaveTagResponse](https://docs.ygo.ai/savetag-savetagresponse-903337d0.md): 
+- Root [saveTag_ProjectTag](https://docs.ygo.ai/savetag-projecttag-903338d0.md): 
+- Root [saveTag_ErrorResponse](https://docs.ygo.ai/savetag-errorresponse-903339d0.md): 
+- Root [saveTag_ErrorDetail](https://docs.ygo.ai/savetag-errordetail-903340d0.md): 
+- Root [getContentSettings_FieldError](https://docs.ygo.ai/getcontentsettings-fielderror-900645d0.md): 
+- Root [listTextTemplates_ListTextTemplatesRequest](https://docs.ygo.ai/listtexttemplates-listtexttemplatesrequest-900646d0.md): 
+- Root [listEnrichedHotels_TextDetection](https://docs.ygo.ai/listenrichedhotels-textdetection-984246d0.md): 
+- Root [listTextTemplates_ListTextTemplatesResponse](https://docs.ygo.ai/listtexttemplates-listtexttemplatesresponse-900647d0.md): 
+- Root [listTextTemplates_Pagination](https://docs.ygo.ai/listtexttemplates-pagination-900648d0.md): 
+- Root [listEnrichedHotels_Image](https://docs.ygo.ai/listenrichedhotels-image-903325d0.md): 
+- Root [listTextTemplates_TextTemplate](https://docs.ygo.ai/listtexttemplates-texttemplate-900649d0.md): 
+- Root [listTextTemplates_TemplateUsageStats](https://docs.ygo.ai/listtexttemplates-templateusagestats-900650d0.md): 
+- Root [listTextTemplates_ErrorResponse](https://docs.ygo.ai/listtexttemplates-errorresponse-900651d0.md): 
+- Root [listTextTemplates_ErrorDetail](https://docs.ygo.ai/listtexttemplates-errordetail-900652d0.md): 
+- Root [listImageProvidersProject_FieldError](https://docs.ygo.ai/listimageprovidersproject-fielderror-903457d0.md): 
+- Root [deleteHotelStars_DeleteHotelStarsRequest](https://docs.ygo.ai/deletehotelstars-deletehotelstarsrequest-1032088d0.md): 
+- Root [saveTextTemplate_SaveTextTemplateResponse](https://docs.ygo.ai/savetexttemplate-savetexttemplateresponse-900655d0.md): 
+- Root [deleteHotelStars_DeleteHotelStarsResponse](https://docs.ygo.ai/deletehotelstars-deletehotelstarsresponse-1032089d0.md): 
+- Root [saveTextTemplate_TextTemplate](https://docs.ygo.ai/savetexttemplate-texttemplate-900656d0.md): 
+- Root [deleteHotelStars_ClearedHotelStars](https://docs.ygo.ai/deletehotelstars-clearedhotelstars-1032090d0.md): 
+- Root [saveTextTemplate_ErrorResponse](https://docs.ygo.ai/savetexttemplate-errorresponse-900657d0.md): 
+- Root [deleteHotelStars_ErrorResponse](https://docs.ygo.ai/deletehotelstars-errorresponse-1032091d0.md): 
+- Root [saveTextTemplate_ErrorDetail](https://docs.ygo.ai/savetexttemplate-errordetail-900658d0.md): 
+- Root [deleteHotelStars_ErrorDetail](https://docs.ygo.ai/deletehotelstars-errordetail-1032092d0.md): 
+- Root [deleteHotelStars_FieldError](https://docs.ygo.ai/deletehotelstars-fielderror-1032093d0.md): 
+- Root [addTagToHotels_FieldError](https://docs.ygo.ai/addtagtohotels-fielderror-903360d0.md): 
+- Root [saveHotelStars_SaveHotelStarsRequest](https://docs.ygo.ai/savehotelstars-savehotelstarsrequest-1032094d0.md): 
+- Root [saveHotelStars_SaveHotelStarsResponse](https://docs.ygo.ai/savehotelstars-savehotelstarsresponse-1032095d0.md): 
+- Root [saveHotelStars_HotelStars](https://docs.ygo.ai/savehotelstars-hotelstars-1032096d0.md): 
+- Root [saveHotelStars_ErrorResponse](https://docs.ygo.ai/savehotelstars-errorresponse-1032097d0.md): 
+- Root [saveHotelStars_ErrorDetail](https://docs.ygo.ai/savehotelstars-errordetail-1032098d0.md): 
+- Root [saveHotelStars_FieldError](https://docs.ygo.ai/savehotelstars-fielderror-1032099d0.md): 
+- Root [deleteTag_FieldError](https://docs.ygo.ai/deletetag-fielderror-903353d0.md): 
+- Root [listTags_FieldError](https://docs.ygo.ai/listtags-fielderror-903347d0.md): 
+- Root [removeTagFromHotels_FieldError](https://docs.ygo.ai/removetagfromhotels-fielderror-903367d0.md): 
+- Root [saveTag_FieldError](https://docs.ygo.ai/savetag-fielderror-903341d0.md): 
+- Root [listImageProvidersProject_ImageProviderCatalogEntry](https://docs.ygo.ai/listimageprovidersproject-imageprovidercatalogentry-903454d0.md): 
+- Root [listTextTemplates_FieldError](https://docs.ygo.ai/listtexttemplates-fielderror-900653d0.md): 
+- Root [saveTextTemplate_SaveTextTemplateRequest](https://docs.ygo.ai/savetexttemplate-savetexttemplaterequest-900654d0.md): 
+- Root [saveTextTemplate_FieldError](https://docs.ygo.ai/savetexttemplate-fielderror-900659d0.md): 
+- Root [getVisionImages_GetVisionImagesRequest](https://docs.ygo.ai/getvisionimages-getvisionimagesrequest-984248d0.md): 
+- Root [getVisionImages_GetVisionImagesResponse](https://docs.ygo.ai/getvisionimages-getvisionimagesresponse-984249d0.md): 
+- Root [getVisionImages_GetVisionImagesResult](https://docs.ygo.ai/getvisionimages-getvisionimagesresult-984250d0.md): 
+- Root [getVisionImages_VisionImageState](https://docs.ygo.ai/getvisionimages-visionimagestate-984251d0.md): 
+- Root [getVisionImages_Compliance](https://docs.ygo.ai/getvisionimages-compliance-984253d0.md): 
+- Root [getVisionImages_DetectionConfidence](https://docs.ygo.ai/getvisionimages-detectionconfidence-984254d0.md): 
+- Root [getVisionImages_PresenceDetection](https://docs.ygo.ai/getvisionimages-presencedetection-984255d0.md): 
+- Root [getVisionImages_FeatureDetection](https://docs.ygo.ai/getvisionimages-featuredetection-984257d0.md): 
+- Root [getVisionImages_ErrorResponse](https://docs.ygo.ai/getvisionimages-errorresponse-984258d0.md): 
+- Root [getVisionImages_ErrorDetail](https://docs.ygo.ai/getvisionimages-errordetail-984259d0.md): 
+- Root [getVisionImages_FieldError](https://docs.ygo.ai/getvisionimages-fielderror-984260d0.md): 
+- Root [ingestVisionImages_VisionImageSubmission](https://docs.ygo.ai/ingestvisionimages-visionimagesubmission-984262d0.md): 
+- Root [ingestVisionImages_IngestVisionImagesResponse](https://docs.ygo.ai/ingestvisionimages-ingestvisionimagesresponse-984263d0.md): 
+- Root [ingestVisionImages_IngestVisionImagesResult](https://docs.ygo.ai/ingestvisionimages-ingestvisionimagesresult-984264d0.md): 
+- Root [ingestVisionImages_IngestedImage](https://docs.ygo.ai/ingestvisionimages-ingestedimage-984265d0.md): 
+- Root [ingestVisionImages_ErrorResponse](https://docs.ygo.ai/ingestvisionimages-errorresponse-984266d0.md): 
+- Root [ingestVisionImages_ErrorDetail](https://docs.ygo.ai/ingestvisionimages-errordetail-984267d0.md): 
+- Root [ingestVisionImages_FieldError](https://docs.ygo.ai/ingestvisionimages-fielderror-984268d0.md): 
+- Root [listVisionImages_ListVisionImagesRequest](https://docs.ygo.ai/listvisionimages-listvisionimagesrequest-984269d0.md): 
+- Root [listVisionImages_ListVisionImagesResponse](https://docs.ygo.ai/listvisionimages-listvisionimagesresponse-984270d0.md): 
+- Root [listVisionImages_Pagination](https://docs.ygo.ai/listvisionimages-pagination-984271d0.md): 
+- Root [listVisionImages_ListVisionImage](https://docs.ygo.ai/listvisionimages-listvisionimage-984272d0.md): 
+- Root [listVisionImages_Compliance](https://docs.ygo.ai/listvisionimages-compliance-984274d0.md): 
+- Root [listVisionImages_DetectionConfidence](https://docs.ygo.ai/listvisionimages-detectionconfidence-984275d0.md): 
+- Root [listVisionImages_PresenceDetection](https://docs.ygo.ai/listvisionimages-presencedetection-984276d0.md): 
+- Root [listVisionImages_FeatureDetection](https://docs.ygo.ai/listvisionimages-featuredetection-984278d0.md): 
+- Root [listVisionImages_ErrorResponse](https://docs.ygo.ai/listvisionimages-errorresponse-984279d0.md): 
+- Root [listVisionImages_ErrorDetail](https://docs.ygo.ai/listvisionimages-errordetail-984280d0.md): 
+- Root [listVisionImages_FieldError](https://docs.ygo.ai/listvisionimages-fielderror-984281d0.md): 
+- Root [deleteVisionImages_DeleteVisionImagesRequest](https://docs.ygo.ai/deletevisionimages-deletevisionimagesrequest-1032100d0.md): 
+- Root [deleteVisionImages_DeleteVisionImagesResponse](https://docs.ygo.ai/deletevisionimages-deletevisionimagesresponse-1032101d0.md): 
+- Root [deleteVisionImages_DeleteVisionImagesResult](https://docs.ygo.ai/deletevisionimages-deletevisionimagesresult-1032102d0.md): 
+- Root [deleteVisionImages_DeletedVisionImageState](https://docs.ygo.ai/deletevisionimages-deletedvisionimagestate-1032103d0.md): 
+- Root [deleteVisionImages_ErrorResponse](https://docs.ygo.ai/deletevisionimages-errorresponse-1032104d0.md): 
+- Root [deleteVisionImages_ErrorDetail](https://docs.ygo.ai/deletevisionimages-errordetail-1032105d0.md): 
+- Root [deleteVisionImages_FieldError](https://docs.ygo.ai/deletevisionimages-fielderror-1032106d0.md): 
+- Root [getVisionImages_Image](https://docs.ygo.ai/getvisionimages-image-984252d0.md): 
+- Root [getVisionImages_TextDetection](https://docs.ygo.ai/getvisionimages-textdetection-984256d0.md): 
+- Root [listVisionImages_Image](https://docs.ygo.ai/listvisionimages-image-984273d0.md): 
+- Root [listVisionImages_TextDetection](https://docs.ygo.ai/listvisionimages-textdetection-984277d0.md): 

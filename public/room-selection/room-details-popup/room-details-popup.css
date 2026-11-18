@@ -1,0 +1,237 @@
+/* room-details-popup — modal with room photos + info, opened from the
+   "פירוט המתקנים בחדר" / "המשך קריאה" links. Light frosted backdrop to match
+   the gallery lightbox. Self-contained local token block. */
+.room-popup {
+  --text: #2a3335;
+  --light-text: #444444;
+  --color: #098137;
+  --color-2: #2aae54;
+  --icon: #687482;
+  --white: #ffffff;
+  --line: #e7ebec;
+  position: fixed;
+  inset: 0;
+  z-index: 990;                 /* below the gallery lightbox (1000) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: 'Rubik', 'Helvetica Neue', Arial, sans-serif;
+}
+.room-popup[hidden] { display: none; }
+
+.room-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+}
+
+.room-popup__dialog {
+  position: relative;
+  z-index: 1;
+  width: min(1000px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+  padding: 74px 30px 30px;         /* white space at the top for the X (off the image) */
+  direction: rtl;
+}
+
+/* plain X (no circle), top-right, with clear space above the image */
+.room-popup__close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  z-index: 2;
+}
+.room-popup__close:hover::before,
+.room-popup__close:hover::after { background: var(--color); }
+.room-popup__close::before,
+.room-popup__close::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 19px; height: 2px;
+  background: var(--text);
+  transition: background-color .2s ease;
+}
+.room-popup__close::before { transform: translate(-50%, -50%) rotate(45deg); }
+.room-popup__close::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+
+/* ---- top: media (left) + info (right) ---- */
+.room-popup__top {
+  display: flex;
+  flex-direction: row-reverse;   /* image on the LEFT, info on the RIGHT */
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.room-popup__media {
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+  align-self: stretch;
+  cursor: pointer;               /* click anywhere on the photo opens the gallery */
+}
+.room-popup__img {
+  width: 100%;
+  aspect-ratio: 328 / 236;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+/* paging arrows — rectangle buttons, side by side, bottom-left (desktop) */
+.room-popup__arrows {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 1;
+}
+.room-popup__nav {
+  width: 40px;
+  height: 46px;
+  border: 0;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.42);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;      /* chevron exactly centred */
+  transition: background-color .2s ease;
+}
+.room-popup__nav:hover { background: rgba(0, 0, 0, 0.58); }
+.room-popup__nav img { width: 13px; height: 13px; object-fit: contain; }
+.room-popup__nav--prev img { transform: scaleX(-1); }
+
+.room-popup__counter {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 46px;                  /* match the paging arrows' height */
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(0, 0, 0, 0.62);
+  color: var(--white);
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color .2s ease;
+}
+.room-popup__counter:hover { background: var(--color); }
+.room-popup__counter img { width: 20px; height: 20px; }
+
+/* ---- info ---- */
+.room-popup__info { flex: 1 1 0; min-width: 0; }
+.room-popup__title {
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  text-align: right;
+}
+.room-popup__label {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color);
+}
+.room-popup__highlights { display: flex; flex-direction: column; gap: 10px; }
+.room-popup__hl {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;   /* RTL start = right */
+  gap: 8px;
+  font-size: 15px;
+  color: var(--text);
+}
+.room-popup__hl img { width: 20px; height: 20px; flex: none; }
+.room-popup__hl span { unicode-bidi: plaintext; }
+
+/* ---- description ---- */
+.room-popup__desc {
+  margin: 24px 0 0;
+  text-align: right;     /* Hebrew description — reads RTL with the page */
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--light-text);
+}
+
+/* ---- facilities ---- */
+.room-popup__facilities-label {
+  margin: 24px 0 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color);
+  text-align: right;
+}
+.room-popup__facilities {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 40px;
+}
+.room-popup__facility {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;   /* RTL start = right */
+  gap: 8px;
+  font-size: 15px;
+  color: var(--text);
+}
+.room-popup__facility img { width: 20px; height: 20px; flex: none; }
+
+/* ---- mobile ---- */
+@media (max-width: 700px) {
+  .room-popup { padding: 0; align-items: stretch; }   /* full-screen, top-aligned */
+  .room-popup__dialog {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;                  /* respect the height, scroll content inside */
+    border-radius: 0;
+    padding: 0 18px 28px;           /* top space now comes from the sticky bar */
+  }
+  /* sticky white bar so the X stays pinned at the top while content scrolls */
+  .room-popup__bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin: 0 -18px 8px;            /* full-bleed across the dialog */
+    padding: 9px 18px;
+    display: flex;
+    align-items: center;           /* single child → sits at the start (right in RTL) */
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+  }
+  .room-popup__close {
+    position: relative;            /* in-flow inside the sticky bar, but still the
+                                      positioning context for the ✕ pseudo-elements */
+    inset: auto;                   /* clear the desktop top/left offsets */
+    width: 34px;
+    height: 34px;
+  }
+  .room-popup__top { flex-direction: column; gap: 16px; }
+  .room-popup__img { aspect-ratio: 335 / 220; }
+  .room-popup__title { font-size: 20px; text-align: right; margin-top: 4px; }
+  .room-popup__desc { margin-top: 20px; }
+  .room-popup__facilities { gap: 12px 24px; }
+  /* arrows stay rectangular at bottom-left (same as desktop), counter bottom-right */
+}

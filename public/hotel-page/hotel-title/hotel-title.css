@@ -1,0 +1,281 @@
+/* hotel-title — scoped to .hotel-title only. */
+
+.hotel-title { width: 100%; background: var(--white); }
+
+.hotel-title__inner { padding-block: 18px 14px; }
+
+/* identity takes the full width; the price floats over the empty bottom-left
+   corner so the hotel name can run the whole way to the screen edge */
+.hotel-title__row {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 40px;
+}
+
+/* ---------- identity column ---------- */
+.hotel-title__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* RTL start = right edge */
+  gap: 14px;
+}
+
+.hotel-title__package {
+  width: 220px;
+  text-align: center;
+  padding: 4px 6px;
+  border: 1px solid var(--color-2);
+  border-radius: 4px;
+  font-size: 17px;
+  font-weight: var(--fw-medium);
+  color: var(--color);
+  white-space: nowrap;
+}
+
+.hotel-title__name-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-block: 10px;   /* extra breathing room so the name stands out */
+}
+.hotel-title__name {
+  margin: 0;
+  font-size: 30px;
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  line-height: 1.1;
+}
+.hotel-title__stars { display: inline-flex; align-items: center; gap: 2px; flex: none; }
+.hotel-title__stars img { width: 15px; height: 15px; }
+
+/* ---------- badges + rating ---------- */
+.hotel-title__badges {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.hotel-title__badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+.hotel-title__badge--kosher {
+  padding: 4px 6px;
+  border: 1px solid var(--text);
+  color: var(--text);
+}
+.hotel-title__badge--recommended {
+  padding: 5px 9px;
+  background: var(--badge-soft);
+  color: #076e2e;
+}
+.hotel-title__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.hotel-title__rating-label {
+  font-size: 16px;
+  font-weight: var(--fw-medium);
+  color: var(--color);
+}
+.hotel-title__rating-score {
+  padding: 2px 6px;
+  background: #218741;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: var(--fw-medium);
+  color: var(--white);
+}
+
+/* order (desktop + mobile alike): rating first (right), then the labels —
+   right→left: rating · מומלץ איסתא · כשר */
+.hotel-title__rating { order: 1; }
+.hotel-title__badge--recommended { order: 2; }
+.hotel-title__badge--kosher { order: 3; }
+.hotel-title__rating-label { order: 1; }   /* keeps the 8.5 score on the right */
+
+/* ---------- tabs ---------- */
+.hotel-title__tabs {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+  margin-top: 2px;
+}
+.hotel-title__tab {
+  padding: 8px 2px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: 18px;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .2s ease, border-color .2s ease;
+}
+.hotel-title__tab:hover:not(.is-active) {
+  color: var(--color);
+  border-bottom-color: rgba(42, 174, 84, 0.4);
+}
+.hotel-title__tab.is-active {
+  font-weight: var(--fw-medium);
+  border-bottom-color: var(--color-2);
+}
+
+/* ---------- price area (left): two priced CTAs split by a divider ----------
+   Spacing pulled 1:1 from Figma (node 4:2775):
+   cols gap 20 · text→button 5 · below button 8 · amount↔label 10 · line↔note 0 */
+.hotel-title__price {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.hotel-title__price-col {
+  width: 184px;
+  padding-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* RTL start = right edge */
+  gap: 5px;
+}
+.hotel-title__price-text {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* price-line + note stacked; spacing = line-height */
+}
+.hotel-title__price-sep {
+  flex: none;
+  width: 1px;
+  height: 73px;
+  background: var(--hairline);
+}
+.hotel-title__price-line {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.hotel-title__price-label {
+  font-size: 16px;
+  font-weight: var(--fw-regular);
+  color: var(--light-text);
+}
+.hotel-title__price-amount {
+  font-size: 18px;
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  direction: ltr;
+  white-space: nowrap;
+}
+.hotel-title__price-note {
+  font-size: 13px;
+  font-weight: var(--fw-regular);
+  color: var(--icon);
+}
+.hotel-title__cta {
+  width: 100%;
+  padding: 5px 30px;
+  border: 1px solid transparent;   /* matched border box so filled/hollow align */
+  border-radius: 10px;
+  background: #218741;
+  font: inherit;
+  font-size: 18px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.2;
+  color: var(--white);
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.hotel-title__cta:hover { background: var(--green-hover); border-color: var(--green-hover); }
+
+/* hollow variant — hotel-only price */
+.hotel-title__cta--hollow {
+  background: var(--white);
+  border-color: var(--color-2);
+  color: var(--color);
+}
+.hotel-title__cta--hollow:hover {
+  background: rgba(42, 174, 84, 0.08);
+  border-color: var(--color-2);
+  color: var(--color);
+}
+
+/* mobile-only quick links — hidden on desktop */
+.hotel-title__links { display: none; }
+
+/* ---- mobile: centered identity, no tabs / no price column ---- */
+@media (max-width: 768px) {
+  .hotel-title { order: 3; }               /* under the search summary */
+  .hotel-title__inner { padding-block: 14px 12px; }
+
+  .hotel-title__row { flex-direction: column; align-items: stretch; gap: 0; }
+  .hotel-title__price { display: none; }        /* price + CTA live elsewhere on mobile */
+  .hotel-title__tabs  { display: none; }
+
+  /* right-aligned identity (RTL start = right) */
+  .hotel-title__main {
+    align-items: flex-start;
+    text-align: right;
+    gap: 10px;
+    width: 100%;
+  }
+
+  /* package label — same font-size + height as the labels below it */
+  .hotel-title__package {
+    width: auto;
+    align-self: flex-start;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+
+  .hotel-title__name-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .hotel-title__name { font-size: 18px; line-height: 1.25; }
+  .hotel-title__stars { order: -1; }            /* stars above the name */
+  .hotel-title__stars img { width: 14px; height: 14px; }
+
+  .hotel-title__badges { justify-content: flex-start; flex-wrap: wrap; gap: 10px; }
+  .hotel-title__badge, .hotel-title__rating-label, .hotel-title__rating-score { font-size: 14px; }
+  /* (badge/rating order is now shared with desktop — defined in the base rules) */
+
+  /* every label the same height as the green rating box */
+  .hotel-title__badge,
+  .hotel-title__rating-score {
+    height: 22px;
+    padding-top: 0;
+    padding-bottom: 0;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .hotel-title__links {
+    display: flex;
+    justify-content: flex-start;
+    gap: 26px;
+    margin-top: 4px;
+  }
+  .hotel-title__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--link);          /* blue text; the icons are <img> and keep their own color */
+    font-size: 15px;
+    text-decoration: none;
+    text-underline-offset: 3px;
+  }
+  .hotel-title__link:hover { text-decoration: underline; }
+  .hotel-title__link-icon { width: 18px; height: 18px; }
+}

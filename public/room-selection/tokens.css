@@ -1,0 +1,56 @@
+/* ==========================================================================
+   tokens.css — the ONLY shared stylesheet for the room-selection module.
+   Design tokens (colors, typography, radii) mirrored 1:1 from the Figma
+   variables. Every component CSS references these custom properties; no
+   component hard-codes a palette value that lives here.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
+
+:root {
+  /* --- brand colors (Figma variables) --- */
+  --color:        #098137;   /* primary green: links, labels, prices, active chip */
+  --color-2:      #2aae54;   /* bright green: order button, rating */
+  --green-hover:  #1a6c34;   /* order button hover */
+  --green-active: #165c2c;   /* order button active */
+
+  /* --- text --- */
+  --text:         #2a3335;   /* primary text */
+  --light-text:   #444444;   /* secondary text (descriptions, details link) */
+  --muted:        #687482;   /* totals / vat / disclaimer gray */
+  --black:        #000000;   /* headings, prices */
+  --white:        #ffffff;
+
+  /* --- lines & surfaces --- */
+  --hairline:     #e0e0e0;   /* dividers, chip & composition-card border */
+  --card-border:  #d9d9d9;   /* room-card border */
+  --pill-sep:     #bfcacd;   /* vertical separator inside the discount pill */
+  --badge-orange: #e36420;   /* "חדש" badge */
+
+  /* discount-pill background (price-pill + member-pill share it) */
+  --pill-grad:    linear-gradient(90deg, #e1ffea 0%, #e6f7ff 100%);
+
+  /* --- typography --- */
+  --font: "Rubik", "Heebo", "Assistant", -apple-system, "Segoe UI", sans-serif;
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-bold:    700;
+
+  /* --- radii --- */
+  --radius-card: 15px;
+  --radius-img:  10px;
+}
+
+/* Minimal shared reset — foundational, applies to every component. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { display: block; }

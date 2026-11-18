@@ -1,0 +1,92 @@
+/* info-line — an icon + text row used for the refund / pay-later / basis notes
+   under each tariff. Includes the green "pay later" text and the "חדש" badge. */
+.info-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+.info-line__text {
+  font-weight: var(--fw-regular);
+  font-size: 16px;
+  line-height: 1.1;
+  color: var(--text);
+  text-align: right;
+}
+.info-line__text--green {
+  color: var(--color);
+}
+.info-line__text b {
+  font-weight: var(--fw-medium);
+}
+.info-line__icon {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  margin-top: -1px;
+  object-fit: contain;
+}
+
+/* text + badge flow inline, so the "חדש" badge sits at the end of the LAST
+   wrapped line (left of the date in RTL) instead of floating vertically centered. */
+.paylater__text {
+  font-weight: var(--fw-medium);
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--color);
+  text-align: right;
+}
+.paylater__tail {
+  white-space: nowrap;
+}
+
+.badge-new {
+  display: inline-block;
+  vertical-align: middle;
+  margin-inline-start: 4px;
+  padding: 1px 5px;
+  border: 1px solid var(--badge-orange);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--badge-orange);
+  font-weight: var(--fw-medium);
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ---------- Medium tier 1 (1001–1339px) ---------- */
+@media (min-width: 1001px) and (max-width: 1339px) {
+  .info-line { gap: 10px; }
+  .info-line__text,
+  .paylater__text { font-size: 15px; }
+  .info-line__icon { width: 18px; height: 18px; }
+}
+
+/* ---------- Medium tier 2 (1001–1259px) ---------- */
+@media (min-width: 1001px) and (max-width: 1259px) {
+  .info-line { gap: 9px; }
+  .info-line__text,
+  .paylater__text { font-size: 14px; }
+  .info-line__icon { width: 17px; height: 17px; }
+}
+
+/* ---------- Mobile (max 1000px) ---------- */
+@media (max-width: 1000px) {
+  .info-line { gap: 8px; }
+  .info-line__text { font-size: 14px; }
+  .info-line__icon {
+    width: 16px;
+    height: 16px;
+    margin-top: 0;
+  }
+  .info-line__icon--basis {
+    width: 16px;
+    height: 16px;
+  }
+  .paylater { gap: 6px; }
+  .paylater__text { font-size: 14px; }
+  .badge-new {
+    font-size: 12px;
+    padding: 1px 3px;
+  }
+}

@@ -1,0 +1,85 @@
+/* hotel-suggestions — "מלונות שיכולים לעניין אותך": a carousel of hotel cards at the
+   bottom of the hotel page. Desktop: arrows page the whole row with a smooth slide,
+   centred on the middle of the IMAGE (not the whole card). Mobile: finger-swipe.
+   Built 1:1 from Figma (nodes 15187:24571 desktop, 8916:38121 mobile). */
+
+.hotel-suggestions { padding: 36px 0 44px; }
+
+.hotel-suggestions__title {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  text-align: right;
+  line-height: 1.2;
+}
+
+/* ---------- carousel ---------- */
+.hotel-suggestions__carousel { position: relative; }
+
+.hotel-suggestions__viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;                 /* Firefox */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.hotel-suggestions__viewport::-webkit-scrollbar { display: none; }
+
+.hotel-suggestions__track {
+  display: flex;
+  gap: 13px;
+  padding: 6px 2px;                      /* room for the card shadow */
+  margin: 0;
+  list-style: none;
+}
+.hotel-suggestions__slide {
+  scroll-snap-align: start;
+  display: flex;                          /* let the card stretch to equal height */
+  flex: 0 0 min(302px, 80vw);            /* mobile: fixed-ish card, ~1.2 visible */
+}
+.hotel-suggestions__slide > .suggestion-card { width: 100%; }
+
+/* ---------- arrows (desktop only) ---------- */
+.hotel-suggestions__arrow {
+  position: absolute;
+  top: 116px;                            /* vertical middle of the card IMAGE (not the card) */
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 53px;
+  height: 58px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: none;                          /* shown on desktop */
+  transition: opacity .15s;
+}
+.hotel-suggestions__arrow img { width: 100%; height: 100%; display: block; pointer-events: none; }
+.hotel-suggestions__arrow:hover { opacity: .85; }
+.hotel-suggestions__arrow:disabled { opacity: .3; cursor: default; pointer-events: none; }
+.hotel-suggestions__arrow--prev { right: -18px; }   /* RTL: previous sits on the right */
+.hotel-suggestions__arrow--next { left: -18px; }    /* RTL: next sits on the left */
+
+/* ---------- desktop (≥1001px): four cards per page + arrows ---------- */
+@media (min-width: 1001px) {
+  .hotel-suggestions__slide { flex: 0 0 calc((100% - 3 * 13px) / 4); }
+  .hotel-suggestions__viewport { scroll-snap-type: x proximity; }
+  .hotel-suggestions__arrow { display: block; }
+}
+
+/* ---------- mobile (≤1000px): full-bleed carousel — cards reach the SCREEN edge,
+   no side gutters. The title stays inside the band; the track keeps a page-pad inset
+   so the first/last card still lines up with the content. ---------- */
+@media (max-width: 1000px) {
+  .hotel-suggestions__carousel { margin-inline: calc(-1 * var(--page-pad)); }
+  .hotel-suggestions__viewport { scroll-padding-inline: var(--page-pad); }
+  .hotel-suggestions__track { padding-inline: var(--page-pad); }
+}
+
+/* on the full hotel page the body is a reordered flex column on mobile — keep this
+   module dead last (below everything). Max component order on the page is 11. */
+@media (max-width: 768px) {
+  .hotel-suggestions { order: 20; }
+}

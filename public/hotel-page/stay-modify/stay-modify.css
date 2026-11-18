@@ -1,0 +1,74 @@
+/* stay-modify — compact dates/guests engine above the room list.
+   Matches the filter-chip row height; a bordered green pill reads as one widget. */
+
+.stay-modify { display: flex; flex-direction: column; gap: 8px; }
+.stay-modify__head { display: none; }   /* desktop: hidden — only shown on mobile */
+
+.stay-modify__fields {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--white);
+  border: 1px solid var(--color-2);
+  border-radius: 10px;
+}
+.stay-modify__field,
+.stay-modify__submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-size: 15px;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+.stay-modify__field:hover,
+.stay-modify__submit:hover { background: #ddf1e3; }
+.stay-modify__icon  { width: 20px; height: 20px; flex: none; }
+.stay-modify__caret { width: 10px; height: 6px; flex: none; opacity: .85; }
+.stay-modify__sep   { flex: none; width: 1px; height: 18px; background: var(--hairline); }
+.stay-modify__submit { font-weight: var(--fw-bold); color: var(--color); }
+
+/* ---- desktop row: filter chips (right) + modify engine (left), same height ---- */
+.room-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.room-toolbar .room-filters { margin-bottom: 0; }
+
+/* ---- mobile: stack below the filters, with the explanatory heading ---- */
+@media (max-width: 1000px) {
+  .room-toolbar { flex-direction: column; align-items: stretch; gap: 14px; }
+  .stay-modify__head {
+    display: block;
+    margin: 0;
+    font-size: 13px;
+    font-weight: var(--fw-regular);
+    color: var(--muted);
+  }
+  .stay-modify__fields { display: flex; gap: 0; }         /* fill the width, one line */
+  .stay-modify__field {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding: 8px 5px;
+    gap: 4px;
+    font-size: 12.5px;
+  }
+  .stay-modify__field .stay-modify__text {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .stay-modify__icon { width: 16px; height: 16px; }
+  .stay-modify__sep  { margin: 0 1px; }
+  .stay-modify__submit { flex: none; padding: 8px 9px; font-size: 12.5px; }
+}

@@ -1,0 +1,92 @@
+/* about-hotel — scoped to .about-hotel only.
+   Shared info-section layout: title (right) · divider · content (left).
+   The description is always right-aligned (even English) and collapses to
+   4 lines until "לראות עוד" expands it. */
+
+.about-hotel { width: 100%; background: var(--white); }
+
+.about-hotel__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--info-gap);
+  padding-block: 28px;
+}
+
+.about-hotel__title {
+  flex: 0 0 var(--info-aside);
+  margin: 0;
+  text-align: right;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+  color: var(--text);
+}
+.about-hotel__divider {
+  flex: 0 0 1px;
+  align-self: stretch;
+  background: var(--hairline);
+}
+
+.about-hotel__body { flex: 1 1 auto; min-width: 0; text-align: right; }
+
+.about-hotel__text {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--light-text);
+  text-align: right;   /* right-aligned even when the copy is in English */
+}
+.about-hotel__text + .about-hotel__text { margin-top: 12px; }
+
+/* collapsed state — the WHOLE description (all paragraphs) shows 4 lines, then an
+   ellipsis; "לראות עוד" removes the clamp. Clamping the container (not just the
+   intro) guarantees 4 full lines even when the first paragraph is short. */
+.about-hotel__desc--clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+
+/* copy that fits in 4 lines needs no toggle (set by about-hotel.js) */
+.about-hotel__actions[hidden] { display: none; }
+
+/* action row: "לראות עוד" · | · "תרגום לעברית" (blue links) */
+.about-hotel__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+.about-hotel__actions-sep {
+  flex: none;
+  width: 1px;
+  height: 15px;
+  background: var(--hairline);
+}
+.about-hotel__more,
+.about-hotel__translate {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 16px;
+  font-weight: var(--fw-medium);
+  color: var(--link);
+  cursor: pointer;
+  text-underline-offset: 3px;
+}
+.about-hotel__more:hover,
+.about-hotel__translate:hover { text-decoration: underline; }
+
+/* ---- mobile: title stacks above the text, no divider ---- */
+@media (max-width: 768px) {
+  .about-hotel { order: 5; }
+  .about-hotel__inner { flex-direction: column; gap: 14px; padding-block: 20px; }
+  .about-hotel__divider { display: none; }
+  .about-hotel__title { flex: none; width: 100%; font-size: 18px; font-weight: var(--fw-semibold); }
+  .about-hotel__text { font-size: 15px; }
+  .about-hotel__more,
+  .about-hotel__translate { font-size: 15px; }
+}
