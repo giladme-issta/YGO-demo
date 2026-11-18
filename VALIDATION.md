@@ -144,6 +144,23 @@ receive raw multilingual enrichment or image-analysis payloads.
   with nonempty geometry and the existing green `currentColor` styling.
 - `npm run check`: **44 JavaScript files, 0 syntax failures**.
 
+## Hosted access checks
+
+- `node --test tests/access-control.test.mjs tests/app.test.mjs`:
+  **11 passing tests**. Coverage includes local bypass, production/public-bind
+  fail-closed configuration, invalid/Unicode credentials, protected pages and
+  APIs, spoofed localhost headers, and the minimal public health endpoint.
+- The production entrypoint exits with `POC_AUTH_CONFIG` before listening if
+  the username/password are missing.
+- A smoke check against real POC HTML, JavaScript and sample hotel data returned
+  **401 without credentials / 200 with credentials** for all three resources.
+  The response challenge uses the browser-native Basic Auth mechanism.
+- Authenticated Q&A accepted the configured HTTPS origin and returned a real
+  `hotel-data` answer; a foreign origin returned **403**.
+- `npm run check`: **46 JavaScript files, 0 syntax failures**.
+- No production credentials were committed, and no cloud deployment was made.
+  Hosting setup and required YGO/Mapbox environment variables are in README.
+
 ## Q&A checks
 
 - Actual factual HTTP answer: the structured beach POI for hotel 6895127

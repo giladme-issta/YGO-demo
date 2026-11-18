@@ -21,6 +21,89 @@ produce an explicit setup error, never content copied from a different hotel.
 Allowed ProductIDs: `14640478`, `22362808`, `17690826`, `4046285`,
 `6895127`, `4645325`, `11165062`, `4458386`.
 
+## Private POC access
+
+The server uses the browser's native **HTTP Basic username/password prompt**,
+not a client-side alert that can be bypassed.
+
+- Local development/testing on `127.0.0.1`, `localhost` or `::1` needs no login.
+- Production/staging, a non-loopback `HOST`, or a non-local `PUBLIC_ORIGIN`
+  requires `POC_AUTH_USER` and `POC_AUTH_PASSWORD`. The password must have at
+  least 12 characters; use a password manager to generate a longer random one.
+- Missing/invalid credentials stop the server **before it listens**. There is
+  no default shared password and no request-header-based authentication bypass.
+- HTML, assets, hotel APIs, Mapbox configuration and Q&A are protected. Only
+  `GET /api/health` is public; on a protected deployment it returns only
+  `{"status":"ok"}` for hosting health checks.
+- These are the POC's viewer credentials, **not** the YGO API credentials.
+  Keep them in the hosting dashboard's environment settings, not Git or
+  client-side code. Share the password with the project manager separately.
+
+Hosted Basic Auth requires **HTTPS**. Use `NODE_ENV=production` when sharing a
+local server through a public tunnel too; a development server bound to
+loopback cannot infer that an external proxy is exposing it.
+
+To try the prompt locally without storing the password in shell history:
+
+```powershell
+$credential = Get-Credential -UserName 'poc' -Message 'Shared POC login'
+$env:POC_AUTH_USER = $credential.UserName
+$env:POC_AUTH_PASSWORD = $credential.GetNetworkCredential().Password
+$env:NODE_ENV = 'production'
+npm start
+```
+
+For HTTPS reverse proxies, set `PUBLIC_ORIGIN` to the exact public origin,
+such as `https://your-poc.example.com` (no path). This keeps Q&A's same-origin
+validation working behind TLS termination. On Render, the app automatically
+uses `RENDER_EXTERNAL_URL` unless `PUBLIC_ORIGIN` overrides it.
+
+## Deploy a project-manager preview
+
+**Recommended: a [Render Web Service](https://render.com/docs/web-services)**,
+not a static site. The Node server is required for YGO content, Q&A and the
+password gate; GitHub Pages alone cannot run it.
+
+1. Push the application source to your repository, excluding `.env`, secrets
+   and `.cache/`.
+2. Connect that repository to a new Render **Web Service**, with Node runtime.
+3. Use **Build Command:** `npm run check`; **Start Command:** `npm start`.
+   This app has no package dependencies to install.
+4. Configure the following environment variables in Render:
+
+   | Variable | Value |
+   | --- | --- |
+   | `NODE_VERSION` | `24` |
+   | `NODE_ENV` | `production` |
+   | `HOST` | `0.0.0.0` |
+   | `POC_AUTH_USER` | Your chosen shared username |
+   | `POC_AUTH_PASSWORD` | A strong, randomly generated shared password |
+   | `MAPBOX_PUBLIC_TOKEN` | The working public Mapbox token |
+   | `YGO_DATA_MODE` | `live` |
+   | `YGO_PROJECT_KEY` | Your YGO content API key |
+   | `YGO_PROJECT_ID` | Your YGO project ID, if different from the configured default |
+   | `YGO_DEMO_AUTH` | Optional: YGO preview Q&A credential for free-text AI |
+   | `PUBLIC_ORIGIN` | Only needed to override the automatic Render URL, e.g. a custom HTTPS domain |
+
+   Leave `PORT` to Render and leave `YGO_TRANSPORT` unset (native HTTPS).
+   Do not copy the Windows-only `windows-proxy` setting to a Linux host.
+5. Set the health-check path to `/api/health`. Render redirects public HTTP to
+   HTTPS and terminates TLS before forwarding requests to Node.
+6. If the Mapbox token is URL-restricted, allow the new preview origin. After
+   deployment, verify the login prompt, hotel content, map and Q&A before
+   sharing the HTTPS link and login details.
+
+**Content matters:** `.cache/hotels/` is local and ignored by Git. A fresh
+deployment in snapshot mode has no hotel content unless you separately provision
+those files. `live` mode avoids that dependency and caches fetched content in
+memory for five minutes. Alternatively, `sample` mode uses the included response
+but supports **only hotel `4458386`**.
+
+Render's [free web services](https://render.com/docs/free) sleep after 15 minutes
+without inbound traffic and have ephemeral storage. For a predictable scheduled
+demo, use a paid instance or open the link ahead of time. This setup has been
+documented but no cloud resources have been created or deployed.
+
 ## Refresh YGO content
 
 Configure credentials in the server process environment. Do not commit them,

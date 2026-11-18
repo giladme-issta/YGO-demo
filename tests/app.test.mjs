@@ -5,8 +5,9 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createApp } from '../server/app.mjs';
 import { HOTEL_IDS, mapHotel, summarizeHotel } from '../server/hotel-data.mjs';
+import { createAccessControl } from '../server/access-control.mjs';
 
-async function start(t, qaClient, mapboxPublicToken) {
+async function start(t, qaClient, mapboxPublicToken, accessOptions) {
   const publicDir = await mkdtemp(path.join(tmpdir(), 'ygo-http-test-'));
   await writeFile(path.join(publicDir, 'hello.html'), '<!doctype html><title>test</title>');
   const make = id => {
@@ -21,7 +22,10 @@ async function start(t, qaClient, mapboxPublicToken) {
     get: async id => make(id),
     list: async () => HOTEL_IDS.map(id => ({ ...summarizeHotel(make(id).hotel), available: true })),
   };
-  const server = createApp({ repository, publicDir, qaClient, mapboxPublicToken, logger: { warn() {} } });
+  const server = createApp({
+    repository, publicDir, qaClient, mapboxPublicToken,
+    access: createAccessControl(accessOptions), logger: { warn() {} },
+  });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   t.after(async () => {
     server.closeAllConnections();
@@ -111,4 +115,58 @@ test('map configuration exposes only a public token and permits Mapbox resources
     assert.equal(body.error.code, 'MAPBOX_NOT_CONFIGURED');
     assert.ok(!JSON.stringify(body).includes('sk.test-secret-token'));
   }
+});
+
+test('hosted pages, assets and APIs require the browser Basic Auth challenge', async t => {
+  const base = await start(t, undefined, 'pk.test-public-token', {
+    environment: 'production', username: 'poc', password: 'test-password-only',
+  });
+  for (const pathname of ['/', '/hello.html', '/api/hotels', '/api/hotels/4458386', '/api/map-config']) {
+    const response = await fetch(`${base}${pathname}`, { redirect: 'manual' });
+    assert.equal(response.status, 401, pathname);
+    assert.match(response.headers.get('www-authenticate'), /^Basic realm="YGO POC"/);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal((await response.json()).error.code, 'POC_AUTH_REQUIRED');
+  }
+  const deniedPost = await fetch(`${base}/api/hotels/4458386/ask`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: 'מה שעת הצ׳ק אין?' }),
+  });
+  assert.equal(deniedPost.status, 401);
+  const spoofedLocal = await fetch(`${base}/hello.html`, {
+    headers: { Host: 'localhost:3000', 'X-Forwarded-Host': 'localhost', 'X-Forwarded-For': '127.0.0.1' },
+  });
+  assert.equal(spoofedLocal.status, 401);
+  for (const authorization of ['Basic !!!', 'Bearer invalid',
+    `Basic ${Buffer.from('poc:wrong-password').toString('base64')}`]) {
+    assert.equal((await fetch(`${base}/hello.html`, { headers: { Authorization: authorization } })).status, 401);
+  }
+  const headers = { Authorization: `Basic ${Buffer.from('poc:test-password-only').toString('base64')}` };
+  const allowed = await fetch(`${base}/hello.html`, { headers });
+  assert.equal(allowed.status, 200);
+  assert.equal(allowed.headers.get('cache-control'), 'private, no-store');
+  assert.match(await allowed.text(), /<title>test<\/title>/);
+  assert.equal((await fetch(`${base}/api/hotels`, { headers })).status, 200);
+  assert.equal((await fetch(`${base}/api/map-config`, { headers })).status, 200);
+  const health = await fetch(`${base}/api/health`);
+  assert.equal(health.status, 200);
+  assert.deepEqual(await health.json(), { status: 'ok' });
+});
+
+test('authenticated hosted Q&A accepts its configured HTTPS origin but not foreign origins', async t => {
+  const origin = 'https://poc.example.test';
+  const base = await start(t, undefined, undefined, {
+    environment: 'production', publicOrigin: origin, username: 'poc', password: 'test-password-only',
+  });
+  const ask = from => fetch(`${base}/api/hotels/4458386/ask`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${Buffer.from('poc:test-password-only').toString('base64')}`,
+      'Content-Type': 'application/json', Origin: from,
+    },
+    body: JSON.stringify({ question: 'מה שעת הצ׳ק אין?' }),
+  });
+  assert.equal((await ask(origin)).status, 200);
+  assert.equal((await ask('https://foreign.invalid')).status, 403);
+  assert.equal((await ask('http://poc.example.test')).status, 403);
 });

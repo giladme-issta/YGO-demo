@@ -4,6 +4,7 @@ import path from 'node:path';
 import { AppError, AI_STATUS } from './errors.mjs';
 import { answerQuestion } from './qa.mjs';
 import { requireHotelId } from './repository.mjs';
+import { createAccessControl } from './access-control.mjs';
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
@@ -55,7 +56,10 @@ async function readQuestion(request) {
   return { question, messages: messages.map(({ role, content }) => ({ role, content })) };
 }
 
-export function createApp({ repository, publicDir, qaClient, mapboxPublicToken = '', logger = console }) {
+export function createApp({
+  repository, publicDir, qaClient, mapboxPublicToken = '',
+  access = createAccessControl(), logger = console,
+}) {
   const root = path.resolve(publicDir);
   const ai = qaClient ? { available: qaClient.available, reason: qaClient.reason } : AI_STATUS;
   const server = http.createServer(async (request, response) => {
@@ -79,8 +83,13 @@ export function createApp({ repository, publicDir, qaClient, mapboxPublicToken =
         throw new AppError(400, 'INVALID_PATH', 'כתובת הבקשה אינה תקינה.');
       }
       if (pathname === '/api/health' && request.method === 'GET') {
-        return sendJson(response, 200, { status: 'ok', mode: repository.mode });
+        return sendJson(response, 200, access.required ? { status: 'ok' } : { status: 'ok', mode: repository.mode });
       }
+      if (!access.authorize(request.headers.authorization)) {
+        response.setHeader('WWW-Authenticate', 'Basic realm="YGO POC", charset="UTF-8"');
+        throw new AppError(401, 'POC_AUTH_REQUIRED', 'נדרשים שם משתמש וסיסמה לצפייה בהדגמה.');
+      }
+      if (access.required) response.setHeader('Cache-Control', 'private, no-store');
       if (pathname === '/api/map-config' && request.method === 'GET') {
         if (!mapboxPublicToken.startsWith('pk.')) {
           throw new AppError(503, 'MAPBOX_NOT_CONFIGURED', 'המפה אינה זמינה. יש להגדיר מפתח Mapbox ציבורי בשרת.');
@@ -103,7 +112,7 @@ export function createApp({ repository, publicDir, qaClient, mapboxPublicToken =
         }
         if (ask) {
           const origin = request.headers.origin;
-          if (origin && origin !== `http://${request.headers.host}`) {
+          if (origin && origin !== (access.origin || `http://${request.headers.host}`)) {
             throw new AppError(403, 'ORIGIN_NOT_ALLOWED', 'ניתן לשלוח שאלות רק מתוך עמוד המלון.');
           }
           const { question, messages } = await readQuestion(request);
@@ -155,7 +164,7 @@ export function createApp({ repository, publicDir, qaClient, mapboxPublicToken =
       const content = await readFile(file);
       response.writeHead(200, {
         'Content-Type': mime, 'Content-Length': content.length,
-        'Cache-Control': 'no-cache',
+        'Cache-Control': access.required ? 'private, no-store' : 'no-cache',
       });
       response.end(request.method === 'HEAD' ? undefined : content);
     } catch (error) {
