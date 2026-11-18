@@ -163,6 +163,9 @@ receive raw multilingual enrichment or image-analysis payloads.
 
 ## Q&A checks
 
+- While a reply is pending, the chat shows three pulsing dots (static with
+  reduced motion). The Hebrew loading message remains available to screen
+  readers, and the indicator disappears when an answer or error arrives.
 - Actual factual HTTP answer: the structured beach POI for hotel 6895127
   produced the supplied 50-meter distance.
 - Real YGO preview-service requests returned Hebrew, hotel-grounded answers

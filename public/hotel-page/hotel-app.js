@@ -1584,8 +1584,17 @@ async function loadHotels() {
 function renderChatMessage(kind, message, source) {
   const thread = $('[data-hc-thread]');
   if (!thread) return null;
-  const row = el('div', `hc-row hc-row--${kind}`);
-  const bubble = el('div', `hc-bubble${kind === 'error' ? ' hc-bubble--error' : ''}`, message);
+  const isTyping = kind === 'typing';
+  const row = el('div', `hc-row hc-row--${isTyping ? 'bot' : kind}`);
+  const bubble = el('div', `hc-bubble${kind === 'error' ? ' hc-bubble--error' : ''}`);
+  if (isTyping) {
+    const dots = el('span', 'hc-typing__dots');
+    dots.setAttribute('aria-hidden', 'true');
+    dots.append(el('span'), el('span'), el('span'));
+    bubble.append(el('span', 'hc-typing__label', message), dots);
+  } else {
+    text(bubble, message);
+  }
   row.append(bubble);
   if (source) row.append(el('div', 'hc-src', source));
   thread.append(row);
@@ -1633,7 +1642,7 @@ async function askQuestion(question) {
   activeAskController = controller;
   setChatBusy(true);
   renderChatMessage('user', value);
-  const pending = renderChatMessage('bot', 'מחפש תשובה בנתוני המלון…');
+  const pending = renderChatMessage('typing', 'מחפש תשובה בנתוני המלון…');
   try {
     const response = await fetch(`/api/hotels/${encodeURIComponent(currentHotelId)}/ask`, {
       method: 'POST',
