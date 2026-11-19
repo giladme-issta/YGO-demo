@@ -89,6 +89,14 @@
 .fac-card__media { flex: none; height: 168px; border-radius: 10px; overflow: hidden; background: #eef2f5; }
 .fac-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease; }
 .fac-card:hover .fac-card__img { transform: scale(1.045); }
+.fac-card__media--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--icon);
+  background: linear-gradient(135deg, var(--badge-soft), #eef2f5);
+}
+.fac-card__media--placeholder svg { width: 44px; height: 44px; opacity: .65; }
 
 .fac-card__body { flex: 1 1 auto; display: flex; flex-direction: column; padding: 14px 12px 16px; }
 .fac-card__title {
@@ -221,7 +229,8 @@
 /* photo mosaic: big photo on the right + smaller ones; each opens the lightbox */
 .fac-photos { display: grid; gap: 8px; height: 250px; margin-bottom: 20px; }
 .fac-photos:empty { display: none; }
-.fac-photos--n1 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fac-photos--n1 { grid-template-columns: minmax(0, 1fr); height: auto; }
+.fac-photos--n1 .fac-photo { aspect-ratio: 16 / 9; }
 .fac-photos--n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .fac-photos--n3 { grid-template-columns: 2fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); }
 .fac-photos--n3 .fac-photo:first-child { grid-row: 1 / 3; }

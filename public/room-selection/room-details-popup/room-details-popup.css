@@ -11,7 +11,7 @@
   --line: #e7ebec;
   position: fixed;
   inset: 0;
-  z-index: 990;                 /* below the gallery lightbox (1000) */
+  z-index: 1001;                /* above the sticky header (1000), below lightbox (1002) */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -23,6 +23,10 @@ const groupImageHelper = app.slice(
   app.indexOf('function groupImage('),
   app.indexOf('function makeSupplementalIcon('),
 );
+const facilityPlaceholderHelper = app.slice(
+  app.indexOf('function makeFacilityPlaceholder('),
+  app.indexOf('function renderFacilities('),
+);
 const renderFacilities = app.slice(
   app.indexOf('function renderFacilities('),
   app.indexOf('function renderFacilityDialog('),
@@ -67,10 +71,12 @@ function fixtureElement(tagName = 'div', className = '') {
 
 function facilityFixture() {
   const modal = fixtureElement('div');
+  const modalIcon = fixtureElement('span');
   const photoContainer = fixtureElement('div', 'fac-photos');
   const modalElements = new Map([
     ['[data-fac-title]', fixtureElement('h2')],
     ['[data-fac-sub]', fixtureElement('p')],
+    ['[data-fac-ic]', modalIcon],
     ['[data-fac-intro]', fixtureElement('p')],
     ['[data-fac-photos]', photoContainer],
     ['[data-fac-list]', fixtureElement('ul')],
@@ -106,7 +112,14 @@ function facilityFixture() {
       return node;
     },
     makeFacilityIcon: () => fixtureElement('span'),
+    makeFacilityIconSvg: group => {
+      const icon = fixtureElement('svg');
+      icon.setAttribute('data-icon-group', group);
+      return icon;
+    },
     makeFacilityRow: () => fixtureElement('li'),
+    facilityIconKey: () => 'info',
+    makeSupplementalIcon: () => fixtureElement('svg'),
     showEmpty() {},
     facilityGroups: [],
   });
@@ -115,34 +128,87 @@ function facilityFixture() {
     imageHelpers,
     facilityNormalizationHelpers,
     groupImageHelper,
+    facilityPlaceholderHelper,
     renderFacilities,
     renderFacilityDialog,
     openLightbox,
   ].join('\n'), context);
-  return { context, photoContainer, events };
+  return { context, modalIcon, photoContainer, events };
 }
 
-test('category image matching skips unknown categories and never reuses an image URL', () => {
+test('category image matching maps beach to location and never reuses an image URL', () => {
   const aquaParkImage = {
     url: 'https://hotelimages.sunhotels.net/HotelInfo/hotelImage.aspx?id=98208426',
     category: 'aqua_park',
   };
+  const beachImage = { url: 'beach-image', category: 'beach' };
   const secondPoolImage = { url: 'pool-image-2', category: 'pool' };
-  const images = [aquaParkImage, secondPoolImage];
+  const images = [aquaParkImage, beachImage, secondPoolImage];
   const usedUrls = new Set();
 
   const poolImage = context.findCategoryImage('pool', images, usedUrls);
   assert.equal(poolImage.url, aquaParkImage.url);
   usedUrls.add(poolImage.url);
 
-  assert.equal(context.findCategoryImage('location', images, usedUrls), null);
+  const locationImage = context.findCategoryImage('location', images, usedUrls);
+  assert.equal(locationImage.url, beachImage.url);
+  usedUrls.add(locationImage.url);
   assert.equal(context.findCategoryImage('facilities_and_services', images, usedUrls), null);
 
   const nextPoolImage = context.findCategoryImage('swimming_pool', images, usedUrls);
   assert.equal(nextPoolImage.url, secondPoolImage.url);
   usedUrls.add(nextPoolImage.url);
 
+  assert.equal(context.findCategoryImage('location', images, usedUrls), null);
   assert.equal(context.findCategoryImage('pool', images, usedUrls), null);
+});
+
+test('facility cards reserve category matches before using unique fallback images', () => {
+  const f = facilityFixture();
+  const selectedHotel = {
+    facilities: [
+      { name: 'Reception', group: 'facilities_and_services' },
+      { name: 'Private beach', group: 'location' },
+      { name: 'Restaurant', group: 'food_and_drink' },
+    ],
+    images: [
+      { url: 'https://images.example.test/pool.jpg', category: 'pool' },
+      { url: 'https://images.example.test/beach.jpg', category: 'beach' },
+      { url: 'https://images.example.test/restaurant.jpg', category: 'restaurant' },
+      { url: 'https://images.example.test/exterior.jpg', category: 'exterior' },
+    ],
+  };
+
+  f.context.renderFacilities(selectedHotel);
+  const cards = Array.from(f.context.$('.facilities__track').children)
+    .map(slide => slide.children[0]);
+  const imageUrls = cards.map(card => card.children[0].children[0].src);
+
+  assert.deepEqual(imageUrls, [
+    'https://images.example.test/exterior.jpg',
+    'https://images.example.test/beach.jpg',
+    'https://images.example.test/restaurant.jpg',
+  ]);
+  assert.equal(new Set(imageUrls).size, cards.length);
+});
+
+test('facility cards use a placeholder instead of duplicating a photo when images run out', () => {
+  const f = facilityFixture();
+  const selectedHotel = {
+    facilities: [
+      { name: 'Private beach', group: 'location' },
+      { name: 'Restaurant', group: 'food_and_drink' },
+    ],
+    images: [{ url: 'https://images.example.test/beach.jpg', category: 'beach' }],
+  };
+
+  f.context.renderFacilities(selectedHotel);
+  const cards = Array.from(f.context.$('.facilities__track').children)
+    .map(slide => slide.children[0]);
+
+  assert.equal(cards[0].children[0].children[0].src, 'https://images.example.test/beach.jpg');
+  assert.equal(cards[1].children[0].classList.contains('fac-card__media--placeholder'), true);
+  assert.equal(cards[1].children[0].children.length, 1);
 });
 
 test('facility dialog renders selected-hotel category photos and opens the full matching gallery', () => {
@@ -165,6 +231,7 @@ test('facility dialog renders selected-hotel category photos and opens the full 
   assert.deepEqual(Array.from(group.photos, photo => photo.url), expectedUrls);
 
   f.context.renderFacilityDialog(group);
+  assert.equal(f.modalIcon.children[0].attributes.get('data-icon-group'), group.name);
   const tiles = f.photoContainer.children;
   assert.equal(f.photoContainer.classList.contains('fac-photos--n5'), true);
   assert.deepEqual(tiles.slice(0, 5).map(tile => tile.children[0].src), expectedUrls.slice(0, 5));

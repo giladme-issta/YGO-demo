@@ -406,7 +406,9 @@ function categoryKey(value) {
     ['lounge', /living_room|lounge|sitting|ישיבה|סלון/],
     ['food', /food|restaurant|dining|beverage|מזון|מסעד|אוכל|משקאות/],
     ['view', /view|נוף/], ['spa', /spa|wellness|health|ספא|וולנס|בריאות/],
-    ['pool', /pool|swim|בריכ|חוף/], ['kids', /kid|child|ילד/],
+    ['pool', /pool|swim|בריכ/],
+    ['location', /location|access|beach|shore|coast|waterfront|seafront|מיקום|גישה|חוף/],
+    ['kids', /kid|child|ילד/],
     ['lobby', /lobby|reception|לובי|קבלה/], ['interior', /interior|פנים/],
     ['terrace', /terrace|balcony|מרפסת|טרסה/], ['fitness', /fitness|sport|כושר|ספורט/],
     ['exterior', /exterior|outside|חיצוני/], ['room', /(?:^|_)room(?:$|_)|bedroom|חדר(?:_שינה)?/]
@@ -492,7 +494,7 @@ const CATEGORY_LABELS = {
   room: 'חדר', food: 'מזון ומשקאות', view: 'נוף', bathroom: 'חדר רחצה',
   spa: 'ספא / רחצה', pool: 'בריכה', lounge: 'סלון / אזור ישיבה',
   kids: 'אזורי ילדים', lobby: 'לובי וקבלה', interior: 'פנים המלון',
-  terrace: 'מרפסת / טרסה', fitness: 'פעילויות וכושר',
+  terrace: 'מרפסת / טרסה', fitness: 'פעילויות וכושר', location: 'מיקום והגעה',
   events: 'כנסים ואירועים', exterior: 'מראה חיצוני', other: 'אחר'
 };
 
@@ -786,6 +788,44 @@ function groupImage(group, images, usedUrls) {
   return findCategoryImage(group, images, usedUrls);
 }
 
+const FACILITY_CARD_FALLBACK_PRIORITY = new Map([
+  ['exterior', 0], ['view', 1], ['lobby', 2], ['interior', 3],
+  ['terrace', 4], ['other', 5],
+]);
+
+function assignFacilityCardImages(groups, images) {
+  const assignments = new Map();
+  const usedUrls = new Set();
+
+  groups.forEach(group => {
+    const image = groupImage(group.name, images, usedUrls);
+    if (!image) return;
+    assignments.set(group.key, image);
+    usedUrls.add(image.url);
+  });
+
+  const fallbackImages = images
+    .filter(image => !usedUrls.has(image.url))
+    .map((image, index) => ({
+      image,
+      index,
+      priority: FACILITY_CARD_FALLBACK_PRIORITY.get(categoryKey(image.category)) ?? 6
+    }))
+    .sort((left, right) => left.priority - right.priority || left.index - right.index)
+    .map(item => item.image);
+  let fallbackIndex = 0;
+
+  groups.forEach(group => {
+    if (assignments.has(group.key)) return;
+    const image = fallbackImages[fallbackIndex++];
+    if (!image) return;
+    assignments.set(group.key, image);
+    usedUrls.add(image.url);
+  });
+
+  return assignments;
+}
+
 function makeSupplementalIcon(kind, className = '') {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   for (const [name, value] of Object.entries({
@@ -798,13 +838,24 @@ function makeSupplementalIcon(kind, className = '') {
   return svg;
 }
 
+function makeFacilityIconSvg(group) {
+  const key = facilityIconKey(group);
+  const template = facilityIconTemplates.get(key);
+  return template ? template.cloneNode(true) : makeSupplementalIcon(key);
+}
+
 function makeFacilityIcon(group) {
   const wrap = el('span', 'fac-card__ic facilities__cat-icon hotel-facility-icon');
   wrap.setAttribute('aria-hidden', 'true');
-  const key = facilityIconKey(group);
-  const template = facilityIconTemplates.get(key);
-  wrap.append(template ? template.cloneNode(true) : makeSupplementalIcon(key));
+  wrap.append(makeFacilityIconSvg(group));
   return wrap;
+}
+
+function makeFacilityPlaceholder(group) {
+  const media = el('div', 'fac-card__media fac-card__media--placeholder');
+  media.setAttribute('aria-hidden', 'true');
+  media.append(makeSupplementalIcon(facilityIconKey(group)));
+  return media;
 }
 
 function renderFacilities(hotel) {
@@ -819,26 +870,26 @@ function renderFacilities(hotel) {
     grouped.get(item.group).push(item);
   });
   const images = normalizedImages(hotel.images);
-  const usedImageUrls = new Set();
-  Array.from(grouped.entries()).forEach(([name, items], index) => {
-    const group = {
+  facilityGroups = Array.from(grouped.entries()).map(([name, items], index) => ({
       key: `hotel-facility-${index}`,
       name,
       items,
       photos: findCategoryImages(name, images)
-    };
-    facilityGroups.push(group);
+    }));
+  const cardImages = assignFacilityCardImages(facilityGroups, images);
+
+  facilityGroups.forEach(group => {
+    const { key, name, items } = group;
     const slide = el('li', 'facilities__slide');
     const card = el('article', 'fac-card');
-    const image = groupImage(name, images, usedImageUrls);
+    const image = cardImages.get(key);
     if (image) {
-      usedImageUrls.add(image.url);
       const media = el('div', 'fac-card__media hotel-facility-preview');
       const img = el('img', 'fac-card__img');
       img.src = image.url; img.alt = image.alt; img.loading = 'lazy';
       media.append(img);
       card.append(media);
-    }
+    } else card.append(makeFacilityPlaceholder(name));
     const body = el('div', 'fac-card__body');
     const title = el('h3', 'fac-card__title');
     title.append(makeFacilityIcon(name), document.createTextNode(name));
@@ -863,6 +914,9 @@ function renderFacilityDialog(group) {
   activeFacilityGroup = group;
   text($('[data-fac-title]', modal), group.name);
   text($('[data-fac-sub]', modal), `${group.items.length} פריטים בנתוני המלון`);
+  const icon = $('[data-fac-ic]', modal);
+  clear(icon);
+  icon?.append(makeFacilityIconSvg(group.name));
   const intro = $('[data-fac-intro]', modal);
   text(intro, '');
   intro.hidden = true;
