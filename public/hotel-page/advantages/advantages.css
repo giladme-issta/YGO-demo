@@ -26,9 +26,10 @@
   background: var(--hairline);
 }
 
+.advantages__body { flex: 1 1 auto; min-width: 0; }
+
 /* perks grid — 3 columns × 3 rows (9 perks) */
 .advantages__list {
-  flex: 1 1 auto;
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -57,21 +58,25 @@
   text-align: right;
 }
 
-/* "לראות עוד" expand link — mobile only (desktop shows all 9) */
+.advantages__detail { display: none; margin-top: 4px; font-size: 0.9em; color: var(--light-text); }
+.advantages__list.is-expanded .advantages__detail { display: block; }
+
+/* toggle row under the list, like about-hotel — desktop shows it only when details exist */
+.advantages__actions { margin-top: 12px; }
 .advantages__more {
   display: none;
-  align-self: flex-start;
-  margin-top: 2px;
   border: 0;
   background: none;
   padding: 0;
   font: inherit;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: var(--fw-medium);
   color: var(--link);
   text-underline-offset: 3px;
   cursor: pointer;
 }
+.advantages__more--details { display: inline-block; }
+.advantages__more[hidden] { display: none; }
 .advantages__more:hover { text-decoration: underline; }   /* same as about-hotel: underline on hover only */
 
 /* ---- tablet: 2 columns ---- */
@@ -88,6 +93,7 @@
   .advantages__list { grid-template-columns: 1fr; gap: 14px; }
   .advantages__text { font-size: 15px; }
   /* collapse to 3 perks by default; the link expands the list downward */
-  .advantages__more { display: inline-block; }
+  .advantages__more { display: inline-block; font-size: 15px; }
+  .advantages__more[hidden] { display: none; }
   .advantages__list:not(.is-expanded) .advantages__item:nth-child(n+4) { display: none; }
 }

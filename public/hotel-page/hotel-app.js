@@ -695,9 +695,11 @@ function renderHighlights(hotel) {
   list?.classList.remove('is-expanded');
   const more = $('[data-adv-toggle]');
   if (more) {
+    more.hidden = true;
     more.setAttribute('aria-expanded', 'false');
     text(more, 'לראות עוד');
   }
+  let hasDetails = false;
   const highlights = Array.isArray(hotel.highlights) ? hotel.highlights : [];
   const usable = highlights.filter(item => item && (scalarText(item.title) || scalarText(item.text)));
   if (!usable.length) {
@@ -720,16 +722,25 @@ function renderHighlights(hotel) {
     icon.append(circle, path);
     const content = el('span', 'advantages__text');
     const title = scalarText(item.title);
+    const detailText = scalarText(item.text);
     if (title) {
-      const strong = el('strong');
-      appendInlineMarkdown(strong, title);
-      content.append(strong);
-      if (scalarText(item.text)) content.append(document.createTextNode(' — '));
+      appendInlineMarkdown(content, title);
+      if (detailText) {
+        const detail = el('div', 'advantages__detail');
+        appendSafeMarkdown(detail, item.text);
+        content.append(detail);
+        hasDetails = true;
+      }
+    } else {
+      appendSafeMarkdown(content, item.text);
     }
-    appendSafeMarkdown(content, item.text);
     li.append(icon, content);
     list.append(li);
   });
+  if (more) {
+    more.hidden = !hasDetails && usable.length <= 3;
+    more.classList.toggle('advantages__more--details', hasDetails);
+  }
 }
 
 function facilityName(facility) {
@@ -1172,9 +1183,18 @@ function updateRoomDialog(room, trigger) {
   clear(facilities);
   room.facilities.forEach(name => {
     const item = el('div', 'room-popup__facility');
-    const icon = el('img');
-    icon.src = '../room-selection/assets/icons/basis-coffee.svg';
-    icon.alt = '';
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('class', 'advantages__check');
+    icon.setAttribute('viewBox', '0 0 20 20');
+    icon.setAttribute('aria-hidden', 'true');
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', '10'); circle.setAttribute('cy', '10'); circle.setAttribute('r', '9');
+    circle.setAttribute('fill', 'none'); circle.setAttribute('stroke', '#2aae54'); circle.setAttribute('stroke-width', '1.4');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M6 10.4l2.6 2.6 5.2-5.6');
+    path.setAttribute('fill', 'none'); path.setAttribute('stroke', '#2aae54'); path.setAttribute('stroke-width', '1.8');
+    path.setAttribute('stroke-linecap', 'round'); path.setAttribute('stroke-linejoin', 'round');
+    icon.append(circle, path);
     item.append(icon, el('span', null, name));
     facilities.append(item);
   });
