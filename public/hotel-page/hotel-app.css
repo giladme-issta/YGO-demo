@@ -123,7 +123,8 @@ html[data-app-ready="false"] body { visibility: hidden; }
   font-size: 12px;
   line-height: 1.45;
 }
-.about-hotel__source-note {
+.about-hotel__source-note,
+.hotel-kosher__source-note {
   margin: 8px 0 0;
   color: var(--icon);
   font-size: 12px;

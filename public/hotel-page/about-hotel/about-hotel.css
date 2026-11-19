@@ -1,9 +1,9 @@
-/* about-hotel — scoped to .about-hotel only.
-   Shared info-section layout: title (right) · divider · content (left).
+/* about-hotel and hotel-kosher share the info-section layout:
+   title (right) · divider · content (left).
    The description is always right-aligned (even English) and collapses to
    4 lines until "לראות עוד" expands it. */
 
-.about-hotel { width: 100%; background: var(--white); }
+.about-hotel, .hotel-kosher { width: 100%; background: var(--white); }
 
 .about-hotel__inner {
   display: flex;
@@ -82,7 +82,7 @@
 
 /* ---- mobile: title stacks above the text, no divider ---- */
 @media (max-width: 768px) {
-  .about-hotel { order: 5; }
+  .about-hotel, .hotel-kosher { order: 5; } /* DOM order keeps kosher before facilities (6). */
   .about-hotel__inner { flex-direction: column; gap: 14px; padding-block: 20px; }
   .about-hotel__divider { display: none; }
   .about-hotel__title { flex: none; width: 100%; font-size: 18px; font-weight: var(--fw-semibold); }

@@ -397,7 +397,7 @@ function categoryKey(value) {
     bathroom: 'bathroom', bath: 'bathroom', bath_room: 'bathroom',
     conference_room: 'events', meeting_room: 'events', living_room: 'lounge',
     food_and_drink: 'food', food_beverage: 'food', food_and_beverage: 'food',
-    pool: 'pool', swimming_pool: 'pool', spa: 'spa', terrace: 'terrace',
+    pool: 'pool', swimming_pool: 'pool', aqua_park: 'pool', spa: 'spa', terrace: 'terrace',
     lobby: 'lobby', reception: 'lobby', fitness: 'fitness', exterior: 'exterior'
   };
   if (exact[v]) return exact[v];
@@ -413,6 +413,20 @@ function categoryKey(value) {
   ];
   const match = rules.find(([, regex]) => regex.test(v));
   return match ? match[0] : 'other';
+}
+
+function findCategoryImage(category, images, usedUrls = new Set()) {
+  const key = categoryKey(category);
+  if (key === 'other') return null;
+  return images.find(image => (
+    !usedUrls.has(image.url) && categoryKey(image.category) === key
+  )) || null;
+}
+
+function findCategoryImages(category, images) {
+  const key = categoryKey(category);
+  if (key === 'other') return [];
+  return images.filter(image => categoryKey(image.category) === key);
 }
 
 const FACILITY_ICON_LABELS = new Map([
@@ -768,9 +782,8 @@ function makeFacilityRow(item, detailed = false) {
   return li;
 }
 
-function groupImage(group, images) {
-  const key = categoryKey(group);
-  return images.find(image => categoryKey(image.category) === key) || null;
+function groupImage(group, images, usedUrls) {
+  return findCategoryImage(group, images, usedUrls);
 }
 
 function makeSupplementalIcon(kind, className = '') {
@@ -806,13 +819,20 @@ function renderFacilities(hotel) {
     grouped.get(item.group).push(item);
   });
   const images = normalizedImages(hotel.images);
+  const usedImageUrls = new Set();
   Array.from(grouped.entries()).forEach(([name, items], index) => {
-    const group = { key: `hotel-facility-${index}`, name, items };
+    const group = {
+      key: `hotel-facility-${index}`,
+      name,
+      items,
+      photos: findCategoryImages(name, images)
+    };
     facilityGroups.push(group);
     const slide = el('li', 'facilities__slide');
     const card = el('article', 'fac-card');
-    const image = groupImage(name, images);
+    const image = groupImage(name, images, usedImageUrls);
     if (image) {
+      usedImageUrls.add(image.url);
       const media = el('div', 'fac-card__media hotel-facility-preview');
       const img = el('img', 'fac-card__img');
       img.src = image.url; img.alt = image.alt; img.loading = 'lazy';
@@ -846,7 +866,32 @@ function renderFacilityDialog(group) {
   const intro = $('[data-fac-intro]', modal);
   text(intro, '');
   intro.hidden = true;
-  clear($('[data-fac-photos]', modal));
+  const photoContainer = $('[data-fac-photos]', modal);
+  clear(photoContainer);
+  photoContainer.classList.remove(
+    'fac-photos--n1', 'fac-photos--n2', 'fac-photos--n3', 'fac-photos--n4', 'fac-photos--n5'
+  );
+  const photos = group.photos || [];
+  if (photos.length) {
+    photoContainer.classList.add(`fac-photos--n${Math.min(photos.length, 5)}`);
+    photos.forEach((photo, index) => {
+      const tile = el('button', 'fac-photo');
+      tile.type = 'button';
+      tile.setAttribute('aria-label', photo.alt || `פתיחת תמונה ${index + 1}`);
+      const image = el('img');
+      image.src = photo.url;
+      image.alt = photo.alt;
+      image.loading = 'lazy';
+      tile.append(image);
+      if (index === 4 && photos.length > 5) {
+        const more = el('span', 'fac-photo__more', `+${photos.length - 5}`);
+        more.setAttribute('aria-hidden', 'true');
+        tile.append(more);
+      }
+      tile.addEventListener('click', () => openLightbox(photos, index, tile));
+      photoContainer.append(tile);
+    });
+  }
   const list = $('[data-fac-list]', modal);
   clear(list);
   group.items.forEach(item => list.append(makeFacilityRow(item, true)));
@@ -1176,16 +1221,16 @@ function renderExperiences(hotel) {
     });
   });
   const images = normalizedImages(hotel.images);
+  const usedImageUrls = new Set();
   cards.slice(0, 6).forEach((cardData, index) => {
     const card = el('article', 'hotel-experiences__card');
-    const categoryImage = images.find(image => categoryKey(image.category) === cardData.category);
-    const imageData = categoryImage || images[0];
+    const imageData = findCategoryImage(cardData.category, images, usedImageUrls);
     const media = el('div', 'hotel-experiences__media');
     if (imageData) {
+      usedImageUrls.add(imageData.url);
       const image = el('img');
       image.src = imageData.url; image.alt = imageData.alt; image.loading = 'lazy';
       media.append(image);
-      if (!categoryImage) media.append(el('span', 'hotel-experiences__image-note', 'תמונת המלון'));
     } else {
       media.append(el('span', 'hotel-room-photo-empty', 'תמונה אינה זמינה'));
     }
@@ -1394,6 +1439,8 @@ function clearHotelData() {
   clear($('[data-gc-grid]'));
   clear($('[data-gc-tablist]'));
   text($('[data-gc-count]'), '0');
+  const kosherSection = $('.hotel-kosher');
+  if (kosherSection) kosherSection.hidden = true;
   clear($('[data-about-text]'));
   $('.about-hotel__source-note')?.remove();
   clear($('.advantages__list'));
@@ -1480,6 +1527,8 @@ function applyAiState(ai) {
 
 function renderHotel(hotel, ai) {
   currentHotel = hotel;
+  const kosherSection = $('.hotel-kosher');
+  if (kosherSection) kosherSection.hidden = String(hotel.id) !== '22362808';
   updateHotelIdentity(hotel);
   applyAiState(ai);
   renderGallery(hotel);
